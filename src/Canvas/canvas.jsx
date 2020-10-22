@@ -1,5 +1,6 @@
 import React from "react";
-import Square from "../Square/square";
+// import Square from "../Square/square";
+import Hexagon from "../Hexagon/hexagon"
 
 /**
  * TODO: Easiest way to create the grid is using the transform property
@@ -12,8 +13,7 @@ import Square from "../Square/square";
 // TODO: Probably best way to create the nice looking hexagon is with an SVG
 
 const Canvas = (props) => {
-  const ids = [0, 1, 2, 3, 4, 5, 6, 7];
-  return ids.map((_) => <Square />);
+  return <Hexagon />
 };
 
 export default Canvas;
