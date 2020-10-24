@@ -1,50 +1,78 @@
 import React from "react";
 import styled from "styled-components";
 
+// TODO: Cannot find a way to set multiple properties to the same value,
+// would be useful for setting border-left and border-right at the same time,
+// have tried using , like with &:before &:after but that doesn't work
 const StyledHexagon = styled.div`
-    position: relative;
-    width: ${props => props.width ? `${props.width}px` : "300px"};
-    height: ${props => props.width ? `${(Math.sqrt(3) / 3) * props.width}px` : "173.21px"};
-    background-color: #64C7CC;
-    margin: ${props => props.width ? `${props.width / 2 * Math.sqrt(3) / 3}px 0` : "86.60px 0"};
-    border-left: ${props => props.borderWidth ? `solid ${props.borderWidth}px #333333` : "solid 5px #333333"};
-    border-right: ${props => props.borderWidth ? `solid ${props.borderWidth}px #333333` : "solid 5px #333333"};
-    &:before {
+    position: absolute;
+    width: ${props => `${props.middleWidth}px`};
+    height: ${props => `${props.middleHeight}px`};
+    background-color: ${props => props.backgroundColor};
+    margin: ${props => `${props.margin}px`};
+    border-left: ${props => borderStyle(props.middleBorderWidth)};
+    border-right: ${props => borderStyle(props.middleBorderWidth)};
+    &:before, &:after {
         content: "";
         position: absolute;
         z-index: 1;
-        width: ${props => props.width ? `${props.width / Math.sqrt(2)}px` : "212.13px"};
-        height: ${props => props.width ? `${props.width / Math.sqrt(2)}px` : "212.13px"};
+        width: ${props => `${props.topBotDiameter}px`};
+        height: ${props => `${props.topBotDiameter}px`};
         transform: scaleY(0.5774) rotate(-45deg);
         background-color: inherit;
-        left: ${props => (props.width && props.borderWidth) ? `${-props.borderWidth - props.width / (Math.sqrt(2) * 2) + props.width / 2 }px` : "38.9340px"};
-        top: ${props => props.width ? `${-props.width / (Math.sqrt(2) * 2)}px` : "-106.0660px"};
-        border-top: ${props => props.borderWidth ? `solid ${Math.sqrt(2) * props.borderWidth}px #333333` : "7.0711px"};
-        border-right: ${props => props.borderWidth ? `solid ${Math.sqrt(2) * props.borderWidth}px #333333` : "7.0711px"};
+        left: ${props => `${props.left}px`};
+    }
+    &:before {
+        top: ${props => `${props.topBot}px`};
+        border-top: ${props => borderStyle(props.topBotBorderWidth)};
+        border-right: ${props => borderStyle(props.topBotBorderWidth)};
     }
     &:after {
-        content: "";
-        position: absolute;
-        z-index: 1;
-        width: ${props => props.width ? `${props.width / Math.sqrt(2)}px` : "212.13px"};
-        height: ${props => props.width ? `${props.width / Math.sqrt(2)}px` : "212.13px"};
-        transform: scaleY(0.5774) rotate(-45deg);
-        background-color: inherit;
-        left: ${props => (props.width && props.borderWidth) ? `${-props.borderWidth - props.width / (Math.sqrt(2) * 2) + props.width / 2 }px` : "38.9340px"};
-        bottom: ${props => props.width ? `${-props.width / (Math.sqrt(2) * 2)}px` : "-106.0660px"};
-        border-bottom: ${props => props.borderWidth ? `solid ${Math.sqrt(2) * props.borderWidth}px #333333` : "7.0711px"};
-        border-left: ${props => props.borderWidth ? `solid ${Math.sqrt(2) * props.borderWidth}px #333333` : "7.0711px"};
+        bottom: ${props => `${props.topBot}px`};
+        border-bottom: ${props => borderStyle(props.topBotBorderWidth)};
+        border-left: ${props => borderStyle(props.topBotBorderWidth)};
     }
 `;
 
+const borderStyle = (borderWidth) => `solid ${borderWidth}px #333333`
 
-const Hexagon = () => {
-    const hexagonProps = {
-        width: 200,
-        borderWidth: 5
+const hexagonStylingProps = ({ width = 300, borderWidth = 5, backgroundColor = "#64C7CC" }) => {
+    return {
+        middleWidth: width,
+        middleHeight: (Math.sqrt(3) / 3) * width,
+        topBotDiameter: width / Math.sqrt(2),
+        margin: width * Math.sqrt(3) / 6,
+        topBotBorderWidth: borderWidth * Math.sqrt(2),
+        middleBorderWidth: borderWidth,
+        left: - borderWidth - width / (Math.sqrt(2) * 2) + width / 2,
+        topBot: -width / (Math.sqrt(2) * 2),
+        backgroundColor
+    }
+}
+
+const Hexagon = (props) => {
+    console.log(props);
+    const { x = 0, y = 0, spacing = 2, ...styling } = props
+    const styledProps = hexagonStylingProps(styling);
+
+    const coordToPixels = (x, y, spacing, width) => {
+        let pixelsX = (width + spacing) * x;
+        let pixelsY = (width * Math.sqrt(3) / 2 + spacing * Math.sqrt(3) / 2) * y;
+        if (y % 2 === 1) {
+            pixelsX += width / 2 + spacing / 2
+        }
+
+        return { pixelsX, pixelsY }
     }
 
-    return <StyledHexagon {...hexagonProps} />;
+    const transform = coordToPixels(x, y, spacing, styling.width);
+
+    const styles = {
+        transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`
+    }
+    console.log(styles);
+
+    return <StyledHexagon {...styledProps} style={styles} />;
 }
 
 export default Hexagon;
