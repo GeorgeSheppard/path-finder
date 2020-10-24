@@ -51,7 +51,6 @@ const hexagonStylingProps = ({ width = 300, borderWidth = 5, backgroundColor = "
 }
 
 const Hexagon = (props) => {
-    console.log(props);
     const { x = 0, y = 0, spacing = 2, ...styling } = props
     const styledProps = hexagonStylingProps(styling);
 
@@ -70,7 +69,6 @@ const Hexagon = (props) => {
     const styles = {
         transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`
     }
-    console.log(styles);
 
     return <StyledHexagon {...styledProps} style={styles} />;
 }
