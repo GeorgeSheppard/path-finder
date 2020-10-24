@@ -10,7 +10,7 @@ import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
 
 const { SubMenu } = Menu;
-const { Content, Sider } = Layout;
+const { Sider } = Layout;
 
 function Toolbar() {
   return (
@@ -47,18 +47,7 @@ function Toolbar() {
             </SubMenu>
           </Menu>
         </Sider>
-        <Layout>
-          <Content
-            className="site-layout-background"
-            style={{
-              padding: 24,
-              margin: 0,
-              height: "100vh",
-            }}
-          >
-            <Canvas />
-          </Content>
-        </Layout>
+				<Canvas />
       </Layout>
     </Layout>
   );
