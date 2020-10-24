@@ -8,6 +8,7 @@ import {
 import "./toolbar.css";
 import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
+import HexagonGrid from "../HexagonGrid/hexagonGrid";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
@@ -47,7 +48,7 @@ function Toolbar() {
             </SubMenu>
           </Menu>
         </Sider>
-				<Canvas />
+            <Canvas Component={HexagonGrid} />
       </Layout>
     </Layout>
   );
