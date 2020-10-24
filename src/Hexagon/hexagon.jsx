@@ -36,7 +36,7 @@ const StyledHexagon = styled.div`
 
 const borderStyle = (borderWidth) => `solid ${borderWidth}px #333333`
 
-const hexagonStylingProps = ({ width = 300, borderWidth = 5, backgroundColor = "#64C7CC" }) => {
+export const hexagonStylingProps = ({ width, borderWidth, backgroundColor }) => {
     return {
         middleWidth: width,
         middleHeight: (Math.sqrt(3) / 3) * width,
@@ -51,26 +51,7 @@ const hexagonStylingProps = ({ width = 300, borderWidth = 5, backgroundColor = "
 }
 
 const Hexagon = (props) => {
-    const { x = 0, y = 0, spacing = 2, ...styling } = props
-    const styledProps = hexagonStylingProps(styling);
-
-    const coordToPixels = (x, y, spacing, width) => {
-        let pixelsX = (width + spacing) * x;
-        let pixelsY = (width * Math.sqrt(3) / 2 + spacing * Math.sqrt(3) / 2) * y;
-        if (y % 2 === 1) {
-            pixelsX += width / 2 + spacing / 2
-        }
-
-        return { pixelsX, pixelsY }
-    }
-
-    const transform = coordToPixels(x, y, spacing, styling.width);
-
-    const styles = {
-        transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`
-    }
-
-    return <StyledHexagon {...styledProps} style={styles} />;
+    return <StyledHexagon {...props} style={props.style} />;
 }
 
 export default Hexagon;
