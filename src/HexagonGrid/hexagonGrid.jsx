@@ -65,6 +65,7 @@ const HexagonGrid = (props) => {
 
             const transform = coordToPixels(x, y, spacing, width);
 
+						// TODO: Use these to centre grid properly
             const { spaceX, spaceY } = gridProps;
             
             const style = {
