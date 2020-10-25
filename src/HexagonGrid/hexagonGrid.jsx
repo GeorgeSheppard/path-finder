@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
 
 const HexagonGrid = (props) => {
-    const { width = 50, borderWidth = 5, spacing = 5,
+    const { width = 50, borderWidth = 5, spacing = 2,
 		backgroundColor = "#64C7CC", ...other } = props;
-		
+
+		const [mouseDown, setMouseDown] = useState(false)
+
+		const handleClick = (state) => {
+			return (event) => {
+				if (event.button === 0) {
+					setMouseDown(state);
+				}
+			}
+		}
+
+
     const createGrid = (windowSize, width, spacing, borderWidth) => {
         if (windowSize.height !== 0 && windowSize.width !== 0) {
             const horizontalSpacing = width + spacing + 2 * borderWidth;
@@ -43,7 +54,7 @@ const HexagonGrid = (props) => {
 			if (gridProps) {
 				const hexagonStartingStates = new Array(gridProps.coords.length).fill('space');
 				const { sizeY } = gridProps;
-				
+
 				Object.entries(props.hexagonStates).forEach((row) => {
 					const key = row[0];
 					row[1].forEach((coord) => {
@@ -59,7 +70,7 @@ const HexagonGrid = (props) => {
 		const hexagonProps = hexagonStylingProps({ width, borderWidth, backgroundColor });
 		const hexagonStates = hexagonStartingStates(gridProps, props.hexagonStates);
 
-    return (<div>
+    return (<div onMouseDown={handleClick(true)} onMouseUp={handleClick(false)}>
         {gridProps && gridProps.coords.map((coord, i) => {
             const [x, y] = coord;
 
@@ -76,7 +87,7 @@ const HexagonGrid = (props) => {
 							type: hexagonStates[i]
 						}
 						
-            return <Hexagon key={`${x}:${y}`} style={style} {...{...hexagonProps, ...type, coord, ...other}} />
+            return <Hexagon key={`${x}:${y}`} style={style} {...{...hexagonProps, ...type, coord, ...other, mouseDown}} />
         })}
     </div>)
 }

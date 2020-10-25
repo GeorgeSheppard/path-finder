@@ -79,21 +79,30 @@ const Hexagon = (props) => {
         setType(props.type);
     }
 
-    const handleChange = () => {
-        const newType = props.selected;
-        let newHexagonState = {...props.hexagonStates};
-        if (newType === 'goal' || newType === 'start') {
-            newHexagonState[newType] = [props.coord];
-        } else {
-            newHexagonState[newType].push(props.coord);
+    const handleChange = (event) => {
+        if (event.button === 0) {
+            const newType = props.selected;
+            let newHexagonState = {...props.hexagonStates};
+            if (newType === 'goal' || newType === 'start') {
+                newHexagonState[newType] = [props.coord];
+            } else {
+                newHexagonState[newType].push(props.coord);
+            }
+            props.setHexagonStates(newHexagonState);
+            setType(newType);
         }
-        props.setHexagonStates(newHexagonState);
-        setType(newType);
+    }
+
+    const handleHover = (event) => {
+        if (props.mouseDown) {
+            handleChange(event);
+        }
     }
 
     const backgroundColor = typeToStyling(type);
 
-    return <StyledHexagon {...{...props, backgroundColor}} style={props.style} onClick={handleChange} />;
+    return <StyledHexagon {...{...props, backgroundColor}} style={props.style}
+    onClick={handleChange} onMouseOver={handleHover} onMouseDown={handleChange} />;
 }
 
 export default Hexagon;
