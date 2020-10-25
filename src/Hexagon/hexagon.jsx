@@ -73,10 +73,20 @@ const typeToStyling = (type) => {
 const Hexagon = (props) => {
     const [type, setType] = useState(props.type ?? 'space');
 
+    // Only one hexagon can be a start/end point, so when a new hexagon
+    // converts to that then new props are passed into this
+    if (props.type !== type) {
+        setType(props.type);
+    }
+
     const handleChange = () => {
         const newType = props.selected;
         let newHexagonState = {...props.hexagonStates};
-        newHexagonState[newType].push(props.coord);
+        if (newType === 'goal' || newType === 'start') {
+            newHexagonState[newType] = [props.coord];
+        } else {
+            newHexagonState[newType].push(props.coord);
+        }
         props.setHexagonStates(newHexagonState);
         setType(newType);
     }

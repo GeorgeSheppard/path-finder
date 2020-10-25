@@ -43,7 +43,7 @@ const HexagonGrid = (props) => {
 			if (gridProps) {
 				const hexagonStartingStates = new Array(gridProps.coords.length).fill('space');
 				const { sizeY } = gridProps;
-		
+				
 				Object.entries(props.hexagonStates).forEach((row) => {
 					const key = row[0];
 					row[1].forEach((coord) => {
