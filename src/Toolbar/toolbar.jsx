@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Layout, Menu } from "antd";
 import {
   UserOutlined,
@@ -8,37 +8,44 @@ import {
 import "./toolbar.css";
 import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
+import HexagonGrid from "../HexagonGrid/hexagonGrid";
 
 const { SubMenu } = Menu;
-const { Content, Sider } = Layout;
+const { Sider } = Layout;
 
-function Toolbar() {
+const Toolbar = () => {
+	const [hexagonStates, setHexagonStates] = useState({
+		start: [],
+		goal: [],
+		wall: [],
+	})
+	const [selected, setSelected] = useState('wall')
+
   return (
     <Layout>
       <Layout>
         <Sider width={200} className="site-layout-background">
           <Menu
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
+						mode="inline"
             style={{ height: "100vh" }}
           >
-            <SubMenu key="sub1" icon={<UserOutlined />} title="subnav 1">
-              <Menu.Item key="1">option1</Menu.Item>
-              <Menu.Item key="2">option2</Menu.Item>
-              <Menu.Item key="3">option3</Menu.Item>
-              <Menu.Item key="4">option4</Menu.Item>
+            <SubMenu key="sub1" icon={<UserOutlined />} title="Required" style={{
+							color: (hexagonStates.start.length === 0 || hexagonStates.goal.length === 0) && "red"
+						}}>
+              <Menu.Item key="1" onClick={() => setSelected('start')} style={{
+								color: hexagonStates.start.length === 0 && "red"
+							}}>Start</Menu.Item>
+              <Menu.Item key="2" onClick={() => setSelected('goal')} style={{
+								color: hexagonStates.goal.length === 0 && "red"
+							}}>Goal</Menu.Item>
             </SubMenu>
-            <SubMenu key="sub2" icon={<LaptopOutlined />} title="subnav 2">
-              <Menu.Item key="5">option5</Menu.Item>
-              <Menu.Item key="6">option6</Menu.Item>
-              <Menu.Item key="7">option7</Menu.Item>
-              <Menu.Item key="8">option8</Menu.Item>
+            <SubMenu key="sub2" icon={<LaptopOutlined />} title="Optional" >
+              <Menu.Item key="3" onClick={() => setSelected('wall')}>Wall</Menu.Item>
             </SubMenu>
             <SubMenu
               key="sub3"
               icon={<NotificationOutlined />}
-              title="subnav 3"
+              title="Algorithm"
             >
               <Menu.Item key="9">option9</Menu.Item>
               <Menu.Item key="10">option10</Menu.Item>
@@ -47,18 +54,7 @@ function Toolbar() {
             </SubMenu>
           </Menu>
         </Sider>
-        <Layout>
-          <Content
-            className="site-layout-background"
-            style={{
-              padding: 24,
-              margin: 0,
-              height: "100vh",
-            }}
-          >
-            <Canvas />
-          </Content>
-        </Layout>
+            <Canvas Component={HexagonGrid} {...{selected, hexagonStates, setHexagonStates}} />
       </Layout>
     </Layout>
   );

@@ -1,19 +1,28 @@
-import React from "react";
-import Square from "../Square/square";
-
-/**
- * TODO: Easiest way to create the grid is using the transform property
- * and iterating over 'offset coordinates', should create a mapping from offset
- * coordinate to pixel placement
- * Information on hexagonal coordinates here
- * https://www.redblobgames.com/grids/hexagons/
- */
-
-// TODO: Probably best way to create the nice looking hexagon is with an SVG
+import React, { useRef, useEffect, useState } from "react";
 
 const Canvas = (props) => {
-  const ids = [0, 1, 2, 3, 4, 5, 6, 7];
-  return ids.map((_) => <Square />);
-};
+    const { Component, ...other } = props;
+
+    const ref = useRef(null);
+    const [windowSize, setWindowSize] = useState({height: 0, width: 0});
+
+    useEffect(() => {
+        setWindowSize({
+            height: ref.current.offsetHeight,
+            width: ref.current.offsetWidth
+        })
+    }, []);
+
+    const canvasStyle = {
+        overflow: "hidden",
+        height: "100vh",
+        width: "100vw",
+        backgroundColor: "#dddddd"
+    }
+
+    return (<div ref={ref} style={canvasStyle}>
+        <Component {...{windowSize, ...other}} />
+    </div>);
+}
 
 export default Canvas;
