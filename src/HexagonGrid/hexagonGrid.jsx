@@ -3,7 +3,7 @@ import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
 
 const HexagonGrid = (props) => {
     const { width = 50, borderWidth = 5, spacing = 5,
-		backgroundColor = "#64C7CC", ...other } = props
+		backgroundColor = "#64C7CC", ...other } = props;
 		
     const createGrid = (windowSize, width, spacing, borderWidth) => {
         if (windowSize.height !== 0 && windowSize.width !== 0) {
@@ -23,7 +23,7 @@ const HexagonGrid = (props) => {
                 }
             }
             
-            return { coords, spaceX, spaceY }
+            return { coords, spaceX, spaceY, sizeX, sizeY }
         }
     }
 
@@ -37,13 +37,30 @@ const HexagonGrid = (props) => {
         }
     
         return { pixelsX, pixelsY }
-    }
+		}
+		
+		const hexagonStartingStates = (gridProps, hexagonStates) => {
+			if (gridProps) {
+				const hexagonStartingStates = new Array(gridProps.coords.length).fill('space');
+				const { sizeY } = gridProps;
+		
+				Object.entries(props.hexagonStates).forEach((row) => {
+					const key = row[0];
+					row[1].forEach((coord) => {
+						hexagonStartingStates[coord[0] * sizeY + coord[1]] = key;
+					})
+				})
+
+				return hexagonStartingStates;
+			}
+		}
 
     const gridProps = createGrid(props.windowSize, width, spacing, borderWidth)
-    const hexagonProps = hexagonStylingProps({ width, borderWidth, backgroundColor });
+		const hexagonProps = hexagonStylingProps({ width, borderWidth, backgroundColor });
+		const hexagonStates = hexagonStartingStates(gridProps, props.hexagonStates);
 
     return (<div>
-        {gridProps && gridProps.coords.map(coord => {
+        {gridProps && gridProps.coords.map((coord, i) => {
             const [x, y] = coord;
 
             const transform = coordToPixels(x, y, spacing, width);
@@ -53,8 +70,12 @@ const HexagonGrid = (props) => {
             const style = {
                 transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`
 						}
+
+						const type = {
+							type: hexagonStates[i]
+						}
 						
-            return <Hexagon key={`${x}:${y}`} style={style} {...{...hexagonProps, coord, ...other}} />
+            return <Hexagon key={`${x}:${y}`} style={style} {...{...hexagonProps, ...type, coord, ...other}} />
         })}
     </div>)
 }
