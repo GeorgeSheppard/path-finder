@@ -15,9 +15,9 @@ const { Sider } = Layout;
 
 const Toolbar = () => {
 	const [hexagonStates, setHexagonStates] = useState({
-		start: [],
-		goal: [],
-		wall: [],
+		goal: [[7, 3]],
+		start: [[4, 5]],
+		wall: [[8, 2], [5, 4], [6, 7], [5, 5], [6, 4], [7, 4], [6, 5], [7, 6], [4, 3], [4, 2], [3, 2], [7, 7], [8, 6], [8, 5]]
 	})
 	const [selected, setSelected] = useState('wall')
 
