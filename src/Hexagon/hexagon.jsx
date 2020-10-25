@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 // TODO: Cannot find a way to set multiple properties to the same value,
@@ -50,8 +50,40 @@ export const hexagonStylingProps = ({ width, borderWidth, backgroundColor }) => 
     }
 }
 
+const typeToStyling = (type) => {
+    let backgroundColor = "#64C7CC"
+    switch (type) {
+        case 'space':
+            break;
+        case 'wall':
+            backgroundColor = "#000000";
+            break;
+        case 'goal':
+            backgroundColor = "#00ff00";
+            break;
+        case 'start':
+            backgroundColor = "#ff0000";
+            break;
+        default:
+            break;
+    }
+    return backgroundColor;
+}
+
 const Hexagon = (props) => {
-    return <StyledHexagon {...props} style={props.style} />;
+    const [type, setType] = useState('space');
+
+    const handleChange = () => {
+        const newType = props.selected;
+        let newHexagonState = {...props.hexagonStates};
+        newHexagonState[newType].push(props.coord);
+        props.setHexagonStates(newHexagonState);
+        setType(newType);
+    }
+
+    const backgroundColor = typeToStyling(type);
+
+    return <StyledHexagon {...{...props, backgroundColor}} style={props.style} onClick={handleChange} />;
 }
 
 export default Hexagon;
