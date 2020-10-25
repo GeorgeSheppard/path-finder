@@ -71,7 +71,7 @@ const typeToStyling = (type) => {
 }
 
 const Hexagon = (props) => {
-    const [type, setType] = useState('space');
+    const [type, setType] = useState(props.type ?? 'space');
 
     const handleChange = () => {
         const newType = props.selected;
