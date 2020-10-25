@@ -3,8 +3,8 @@ import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
 
 const HexagonGrid = (props) => {
     const { width = 50, borderWidth = 5, spacing = 5,
-    backgroundColor = "#64C7CC" } = props
-
+		backgroundColor = "#64C7CC", ...other } = props
+		
     const createGrid = (windowSize, width, spacing, borderWidth) => {
         if (windowSize.height !== 0 && windowSize.width !== 0) {
             const horizontalSpacing = width + spacing + 2 * borderWidth;
@@ -39,7 +39,6 @@ const HexagonGrid = (props) => {
         return { pixelsX, pixelsY }
     }
 
-    console.log(props.windowSize, width, spacing, borderWidth)
     const gridProps = createGrid(props.windowSize, width, spacing, borderWidth)
     const hexagonProps = hexagonStylingProps({ width, borderWidth, backgroundColor });
 
@@ -50,13 +49,12 @@ const HexagonGrid = (props) => {
             const transform = coordToPixels(x, y, spacing, width);
 
             const { spaceX, spaceY } = gridProps;
-            console.log(spaceX, spaceY);
             
             const style = {
                 transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`
-            }
-            
-            return <Hexagon key={`${coord[0]}:${coord[1]}`} style={style} {...hexagonProps} />
+						}
+						
+            return <Hexagon key={`${x}:${y}`} style={style} {...{...hexagonProps, coord, ...other}} />
         })}
     </div>)
 }

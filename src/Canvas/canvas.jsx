@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 
 const Canvas = (props) => {
-    const { Component } = props;
+    const { Component, ...other } = props;
 
     const ref = useRef(null);
     const [windowSize, setWindowSize] = useState({height: 0, width: 0});
@@ -21,7 +21,7 @@ const Canvas = (props) => {
     }
 
     return (<div ref={ref} style={canvasStyle}>
-        <Component {...{windowSize}} />
+        <Component {...{windowSize, ...other}} />
     </div>);
 }
 
