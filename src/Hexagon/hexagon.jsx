@@ -75,7 +75,6 @@ const typeToStyling = (type) => {
   return backgroundColor;
 };
 
-// TODO: This component is still updating all the time for some reason, also getting update depth exceeded
 class Hexagon extends React.Component {
   constructor(props) {
     super(props);
@@ -83,7 +82,6 @@ class Hexagon extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    console.log(this.type, nextProps.type);
     return this.type !== nextProps.type;
   }
 
@@ -96,10 +94,8 @@ class Hexagon extends React.Component {
       } else {
         newHexagonState[newType].push(this.props.coord);
       }
-      console.log("new type", newType);
       this.props.setHexagonStates(newHexagonState);
       this.setState({ type: newType });
-      console.log("new state", this.type);
     }
   };
 
@@ -110,10 +106,7 @@ class Hexagon extends React.Component {
   };
 
   render() {
-    console.log(this.props);
-    this.setState({ type: this.props.type });
-
-    const backgroundColor = typeToStyling(this.type);
+    const backgroundColor = typeToStyling(this.props.type);
 
     return (
       <StyledHexagon
