@@ -7,8 +7,9 @@ const HexagonGrid = (props) => {
     borderWidth = 5,
     spacing = 2,
     backgroundColor = "#64C7CC",
+    hexagonStates,
     setHexagonStates,
-    ...other
+    selected,
   } = props;
 
   const [mouseDown, setMouseDown] = useState(false);
@@ -67,7 +68,7 @@ const HexagonGrid = (props) => {
       );
       const { sizeY } = gridProps;
 
-      Object.entries(props.hexagonStates).forEach((row) => {
+      Object.entries(hexagonStates).forEach((row) => {
         const key = row[0];
         row[1].forEach((coord) => {
           hexagonStartingStates[coord[0] * sizeY + coord[1]] = key;
@@ -84,7 +85,7 @@ const HexagonGrid = (props) => {
     borderWidth,
     backgroundColor,
   });
-  const hexagonStates = hexagonStartingStates(gridProps, props.hexagonStates);
+  const parsedHexagonStates = hexagonStartingStates(gridProps, hexagonStates);
 
   return (
     <div onMouseDown={handleClick(true)} onMouseUp={handleClick(false)}>
@@ -95,14 +96,14 @@ const HexagonGrid = (props) => {
           const transform = coordToPixels(x, y, spacing, width);
 
           // TODO: Use these to centre grid properly
-          const { spaceX, spaceY } = gridProps;
+          // const { spaceX, spaceY } = gridProps;
 
           const style = {
             transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`,
           };
 
           const type = {
-            type: hexagonStates[i],
+            type: parsedHexagonStates[i],
           };
 
           return (
@@ -110,7 +111,14 @@ const HexagonGrid = (props) => {
               key={`${x}:${y}`}
               style={style}
               css={hexagonProps}
-              {...{ ...type, coord, ...other, mouseDown, setHexagonStates }}
+              {...{
+                ...type,
+                coord,
+                selected,
+                mouseDown,
+                hexagonStates,
+                setHexagonStates,
+              }}
             />
           );
         })}

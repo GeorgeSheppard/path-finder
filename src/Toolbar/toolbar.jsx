@@ -76,6 +76,9 @@ const Toolbar = () => {
               <Menu.Item key="3" onClick={() => setSelected("wall")}>
                 Wall
               </Menu.Item>
+              <Menu.Item key="4" onClick={() => setSelected("space")}>
+                Space
+              </Menu.Item>
             </SubMenu>
             <SubMenu
               key="sub3"
@@ -91,7 +94,11 @@ const Toolbar = () => {
         </Sider>
         <Canvas
           Component={HexagonGrid}
-          {...{ selected, hexagonStates, setHexagonStates }}
+          {...{
+            selected,
+            hexagonStates,
+            setHexagonStates,
+          }}
         />
       </Layout>
     </Layout>

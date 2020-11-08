@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
+import { arrayEquals } from "../Utilities/utilities";
 
 // TODO: Cannot find a way to set multiple properties to the same value,
 // would be useful for setting border-left and border-right at the same time,
@@ -75,12 +76,17 @@ const typeToStyling = (type) => {
   return backgroundColor;
 };
 
+const limitedState = {
+  wall: false,
+  goal: true,
+  start: true,
+};
+
 class Hexagon extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      type: props.type,
-      selected: props.selected,
+      previousState: props.type,
       mouseDown: props.mouseDown,
     };
 
@@ -88,32 +94,70 @@ class Hexagon extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return nextState.type !== this.state.type;
+    return nextProps.type !== this.props.type;
   }
 
-  handleChange = (event) => {
+  componentDidUpdate(prevProps, prevState) {
+    this.setState({ previousState: prevProps.type });
+  }
+
+  removeOldState(oldType, newHexagonStates) {
+    if (oldType !== "space") {
+      if (limitedState[oldType]) {
+        newHexagonStates[oldType] = [];
+      } else {
+        newHexagonStates[oldType] = newHexagonStates[oldType].filter(
+          (coord) => !arrayEquals(coord, this.props.coord)
+        );
+      }
+    }
+    return newHexagonStates;
+  }
+
+  addNewState(newType, newHexagonStates) {
+    if (newType !== "space") {
+      if (limitedState[newType]) {
+        newHexagonStates[newType] = [this.props.coord];
+      } else {
+        newHexagonStates[newType].push(this.props.coord);
+      }
+    }
+    return newHexagonStates;
+  }
+
+  handleChange = (event, oldType) => {
+    console.log(oldType, this.props.coord);
     if (event.button === 0) {
-      this.setState({ type: this.props.selected });
+      const newType = this.props.selected;
+
+      if (newType !== this.state.previousState) {
+        let newHexagonStates = { ...this.props.hexagonStates };
+
+        newHexagonStates = this.addNewState(newType, newHexagonStates);
+        newHexagonStates = this.removeOldState(oldType, newHexagonStates);
+
+        this.props.setHexagonStates(newHexagonStates);
+      }
     }
   };
 
-  handleHover = (event) => {
+  handleHover = (event, oldType) => {
     if (this.props.mouseDown) {
-      this.handleChange(event);
+      this.handleChange(event, oldType);
     }
   };
 
   render() {
-    console.log("rendering");
-    const backgroundColor = typeToStyling(this.state.type);
+    const backgroundColor = typeToStyling(this.props.type);
+    const previous = this.state.previousState;
 
     return (
       <StyledHexagon
         {...{ ...this.css, backgroundColor }}
         style={this.props.style}
-        onClick={this.handleChange}
-        onMouseOver={this.handleHover}
-        onMouseDown={this.handleChange}
+        onClick={(event) => this.handleChange(event, previous)}
+        onMouseOver={(event) => this.handleHover(event, previous)}
+        onMouseDown={(event) => this.handleChange(event, previous)}
       />
     );
   }
