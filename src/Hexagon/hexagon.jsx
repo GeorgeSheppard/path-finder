@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 // TODO: Cannot find a way to set multiple properties to the same value,
@@ -78,24 +78,22 @@ const typeToStyling = (type) => {
 class Hexagon extends React.Component {
   constructor(props) {
     super(props);
-    this.type = props.type ?? "space";
+    this.state = {
+      type: props.type,
+      selected: props.selected,
+      mouseDown: props.mouseDown,
+    };
+
+    this.css = props.css;
   }
 
-  shouldComponentUpdate(nextProps) {
-    return this.type !== nextProps.type;
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.type !== this.state.type;
   }
 
   handleChange = (event) => {
     if (event.button === 0) {
-      const newType = this.props.selected;
-      let newHexagonState = { ...this.props.hexagonStates };
-      if (newType === "goal" || newType === "start") {
-        newHexagonState[newType] = [this.props.coord];
-      } else {
-        newHexagonState[newType].push(this.props.coord);
-      }
-      this.props.setHexagonStates(newHexagonState);
-      this.setState({ type: newType });
+      this.setState({ type: this.props.selected });
     }
   };
 
@@ -106,11 +104,12 @@ class Hexagon extends React.Component {
   };
 
   render() {
-    const backgroundColor = typeToStyling(this.props.type);
+    console.log("rendering");
+    const backgroundColor = typeToStyling(this.state.type);
 
     return (
       <StyledHexagon
-        {...{ ...this.props, backgroundColor }}
+        {...{ ...this.css, backgroundColor }}
         style={this.props.style}
         onClick={this.handleChange}
         onMouseOver={this.handleHover}
@@ -119,40 +118,5 @@ class Hexagon extends React.Component {
     );
   }
 }
-
-// const Hexagon = (props) => {
-//     const [type, setType] = useState(props.type ?? 'space');
-
-//     // Only one hexagon can be a start/end point, so when a new hexagon
-//     // converts to that then new props are passed into this
-//     if (props.type !== type) {
-//         setType(props.type);
-//     }
-
-//     const handleChange = (event) => {
-//         if (event.button === 0) {
-//             const newType = props.selected;
-//             let newHexagonState = {...props.hexagonStates};
-//             if (newType === 'goal' || newType === 'start') {
-//                 newHexagonState[newType] = [props.coord];
-//             } else {
-//                 newHexagonState[newType].push(props.coord);
-//             }
-//             props.setHexagonStates(newHexagonState);
-//             setType(newType);
-//         }
-//     }
-
-//     const handleHover = (event) => {
-//         if (props.mouseDown) {
-//             handleChange(event);
-//         }
-//     }
-
-//     const backgroundColor = typeToStyling(type);
-
-//     return <StyledHexagon {...{...props, backgroundColor}} style={props.style}
-//     onClick={handleChange} onMouseOver={handleHover} onMouseDown={handleChange} />;
-// }
 
 export default Hexagon;

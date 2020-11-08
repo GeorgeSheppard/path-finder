@@ -3,10 +3,11 @@ import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
 
 const HexagonGrid = (props) => {
   const {
-    width = 30,
-    borderWidth = 3,
+    width = 50,
+    borderWidth = 5,
     spacing = 2,
     backgroundColor = "#64C7CC",
+    setHexagonStates,
     ...other
   } = props;
 
@@ -108,7 +109,8 @@ const HexagonGrid = (props) => {
             <Hexagon
               key={`${x}:${y}`}
               style={style}
-              {...{ ...hexagonProps, ...type, coord, ...other, mouseDown }}
+              css={hexagonProps}
+              {...{ ...type, coord, ...other, mouseDown, setHexagonStates }}
             />
           );
         })}

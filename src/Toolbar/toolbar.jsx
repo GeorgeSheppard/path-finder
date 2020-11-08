@@ -34,6 +34,7 @@ const Toolbar = () => {
       [8, 5],
     ],
   });
+
   const [selected, setSelected] = useState("wall");
 
   return (
