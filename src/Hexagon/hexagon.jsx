@@ -94,11 +94,13 @@ class Hexagon extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.type !== this.props.type) {
+      this.setState({ previousState: nextProps.type });
+      return true;
+    } else {
+      return false;
+    }
     return nextProps.type !== this.props.type;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    this.setState({ previousState: prevProps.type });
   }
 
   removeOldState(oldType, newHexagonStates) {
@@ -126,15 +128,14 @@ class Hexagon extends React.Component {
   }
 
   handleChange = (event, oldType) => {
-    console.log(oldType, this.props.coord);
     if (event.button === 0) {
       const newType = this.props.selected;
 
       if (newType !== this.state.previousState) {
         let newHexagonStates = { ...this.props.hexagonStates };
 
-        newHexagonStates = this.addNewState(newType, newHexagonStates);
         newHexagonStates = this.removeOldState(oldType, newHexagonStates);
+        newHexagonStates = this.addNewState(newType, newHexagonStates);
 
         this.props.setHexagonStates(newHexagonStates);
       }
@@ -148,8 +149,8 @@ class Hexagon extends React.Component {
   };
 
   render() {
-    const backgroundColor = typeToStyling(this.props.type);
-    const previous = this.state.previousState;
+    const previous = this.props.type;
+    const backgroundColor = typeToStyling(previous);
 
     return (
       <StyledHexagon
