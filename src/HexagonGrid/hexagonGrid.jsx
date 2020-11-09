@@ -6,7 +6,6 @@ const HexagonGrid = (props) => {
     width = 50,
     borderWidth = 5,
     spacing = 2,
-    backgroundColor = "#64C7CC",
     hexagonStates,
     setHexagonStates,
     selected,
@@ -83,7 +82,6 @@ const HexagonGrid = (props) => {
   const hexagonProps = hexagonStylingProps({
     width,
     borderWidth,
-    backgroundColor,
   });
   const parsedHexagonStates = hexagonStartingStates(gridProps, hexagonStates);
 
