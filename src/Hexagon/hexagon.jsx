@@ -13,7 +13,6 @@ const StyledHexagon = styled.div`
   width: ${(props) => `${props.middleWidth}px`};
   height: ${(props) => `${props.middleHeight}px`};
   background-color: ${(props) => props.backgroundColor};
-  margin: ${(props) => `${props.margin}px`};
   border-left: ${(props) => borderStyle(props.middleBorderWidth)};
   border-right: ${(props) => borderStyle(props.middleBorderWidth)};
   &:before,

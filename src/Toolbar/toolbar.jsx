@@ -36,11 +36,12 @@ const Toolbar = () => {
   });
 
   const [selected, setSelected] = useState("wall");
+  const siderWidth = 200;
 
   return (
     <Layout>
       <Layout>
-        <Sider width={200} className="site-layout-background">
+        <Sider width={siderWidth} className="site-layout-background">
           <Menu mode="inline" style={{ height: "100vh" }}>
             <SubMenu
               key="sub1"
@@ -98,6 +99,7 @@ const Toolbar = () => {
             selected,
             hexagonStates,
             setHexagonStates,
+            siderWidth
           }}
         />
       </Layout>

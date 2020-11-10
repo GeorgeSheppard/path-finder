@@ -1,16 +1,33 @@
 import React, { useState } from "react";
 import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
 
+// TODO: For a large number of hexagons the performance is poor, should add an useEffect
+// hook so that createGrid is only called when the hexagon props change
+// should make it so that pixel coordinates are calculated once and stored
+// effectively the only function that should be run on a new render provided the grid stays
+// the same is the hexagonStartingStates function
+/**
+ * Creates a grid of tesselating hexagons the size of the canvas object that
+ * contains it, can define the width of an individual hexagon, the border size,
+ * spacing between each hexagon
+ * @param {object} props
+ */
 const HexagonGrid = (props) => {
   const {
     width = 50,
     borderWidth = 5,
-    spacing = 2,
+    spacing = 5,
     hexagonStates,
     setHexagonStates,
     selected,
+    siderWidth,
   } = props;
 
+  // Width of the hexagon INCLUDES the borderwidth
+  const horizontalSpacing = width + spacing;
+  const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
+
+  // Sent to the hexagons to allow state change for drag click
   const [mouseDown, setMouseDown] = useState(false);
 
   const handleClick = (state) => {
@@ -21,19 +38,23 @@ const HexagonGrid = (props) => {
     };
   };
 
-  const createGrid = (windowSize, width, spacing, borderWidth) => {
+  /**
+   * Given the size of the window to display the grid, calculates the list of possible
+   * coordinates, the available border width for the grid, and the dimensions of the grid
+   * @param {int} windowSize
+   */
+  const createGrid = (windowSize) => {
     if (windowSize.height !== 0 && windowSize.width !== 0) {
-      const horizontalSpacing = width + spacing + 2 * borderWidth;
-      const sizeX = Math.floor((windowSize.width - width) / horizontalSpacing);
-      const spaceX = windowSize.width - (sizeX * horizontalSpacing + width);
-
-      const verticalSpacing = (Math.sqrt(3) / 2) * (spacing + width);
-      const sizeY = Math.floor(
-        (windowSize.height - (Math.sqrt(3) / 3) * width) / verticalSpacing
+      const sizeX = Math.floor(
+        (windowSize.width - siderWidth - horizontalSpacing / 2) /
+          horizontalSpacing
       );
-      const spaceY =
-        windowSize.height -
-        (sizeY * verticalSpacing + (Math.sqrt(3) / 3) * width);
+
+      const sizeY = Math.floor(windowSize.height / verticalSpacing);
+
+      const offsetX =
+        (windowSize.width - siderWidth - (sizeX + 0.5) * horizontalSpacing) / 2;
+      const offsetY = (windowSize.height - (sizeY + 0.5) * verticalSpacing) / 2;
 
       const coords = [];
 
@@ -43,23 +64,36 @@ const HexagonGrid = (props) => {
         }
       }
 
-      return { coords, spaceX, spaceY, sizeX, sizeY };
+      return { coords, offsetX, offsetY, sizeX, sizeY };
     }
   };
 
-  // TODO: To centralise grid of hexagons properly need to make sure this returns exactly
-  // the right spacing, can then update other maths to account for it
-  const coordToPixels = (x, y, spacing, width) => {
-    let pixelsX = (width + spacing) * x;
-    let pixelsY =
-      ((width * Math.sqrt(3)) / 2 + (spacing * Math.sqrt(3)) / 2) * y;
+  /**
+   * Converts a coordinate into a pixel coordinate
+   * @param {int} x
+   * @param {int} y
+   */
+  const coordToPixels = (x, y) => {
+    let pixelsX = horizontalSpacing * x;
+    const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
     if (y % 2 === 1) {
-      pixelsX += width / 2 + spacing / 2;
+      pixelsX += horizontalSpacing / 2;
     }
 
     return { pixelsX, pixelsY };
   };
 
+  /**
+   * Maps a grid specification of the form
+   * {
+   * 'wall': [[2, 0], [3, 5]],
+   * 'goal': [[1, 2]],
+   * 'start': [[3,  6]]
+   * }
+   * into an array that has the type of each individual hexagon on the grid
+   * @param {object} gridProps output of the createGrid function
+   * @param {*} hexagonStates grid specification
+   */
   const hexagonStartingStates = (gridProps, hexagonStates) => {
     if (gridProps) {
       const hexagonStartingStates = new Array(gridProps.coords.length).fill(
@@ -78,7 +112,8 @@ const HexagonGrid = (props) => {
     }
   };
 
-  const gridProps = createGrid(props.windowSize, width, spacing, borderWidth);
+  const gridProps = createGrid(props.windowSize);
+  // Calculate the styling props once and then use it for all hexagons
   const hexagonProps = hexagonStylingProps({
     width,
     borderWidth,
@@ -91,17 +126,15 @@ const HexagonGrid = (props) => {
         gridProps.coords.map((coord, i) => {
           const [x, y] = coord;
 
-          const transform = coordToPixels(x, y, spacing, width);
+          const transform = coordToPixels(x, y, spacing, width, borderWidth);
 
-          // TODO: Use these to centre grid properly
-          // const { spaceX, spaceY } = gridProps;
+          const { offsetX, offsetY } = gridProps;
 
+          // maps hexagons to correct coordinate and centre the entire grid
           const style = {
-            transform: `translate(${transform.pixelsX}px, ${transform.pixelsY}px)`,
-          };
-
-          const type = {
-            type: parsedHexagonStates[i],
+            transform: `translate(${transform.pixelsX + offsetX}px, ${
+              transform.pixelsY + offsetY
+            }px)`,
           };
 
           return (
@@ -110,7 +143,7 @@ const HexagonGrid = (props) => {
               style={style}
               css={hexagonProps}
               {...{
-                ...type,
+                type: parsedHexagonStates[i],
                 coord,
                 selected,
                 mouseDown,
