@@ -36,7 +36,6 @@ const Toolbar = () => {
   });
 
   const [selected, setSelected] = useState("wall");
-
   const siderWidth = 200;
 
   return (
@@ -100,7 +99,7 @@ const Toolbar = () => {
             selected,
             hexagonStates,
             setHexagonStates,
-            siderWidth,
+            siderWidth
           }}
         />
       </Layout>
