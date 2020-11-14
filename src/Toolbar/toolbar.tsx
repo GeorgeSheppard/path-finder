@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Button } from "antd";
 import {
   UserOutlined,
   LaptopOutlined,
@@ -9,12 +9,19 @@ import "./toolbar.css";
 import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
 import HexagonGrid from "../HexagonGrid/hexagonGrid";
+import { router } from "../Algorithms/base";
+import { HexagonTypes, HexagonStates } from "../types/dtypes";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
+export type GridSize = {
+  x: number;
+  y: number;
+};
+
 const Toolbar = () => {
-  const [hexagonStates, setHexagonStates] = useState({
+  const [hexagonStates, setHexagonStates] = useState<HexagonStates>({
     goal: [[7, 3]],
     start: [[4, 5]],
     wall: [
@@ -35,8 +42,15 @@ const Toolbar = () => {
     ],
   });
 
-  const [selected, setSelected] = useState("wall");
-  const siderWidth = 200;
+  const [gridSize, setGridSize] = useState<GridSize>({
+    x: 0,
+    y: 0,
+  });
+
+  const [selected, setSelected] = useState<HexagonTypes>("wall");
+  const siderWidth: number = 200;
+
+  const [algorithm, setAlgorithm] = useState("");
 
   return (
     <Layout>
@@ -49,16 +63,17 @@ const Toolbar = () => {
               title="Required"
               style={{
                 color:
-                  (hexagonStates.start.length === 0 ||
-                    hexagonStates.goal.length === 0) &&
-                  "red",
+                  hexagonStates.start.length === 0 ||
+                  hexagonStates.goal.length === 0
+                    ? "red"
+                    : undefined,
               }}
             >
               <Menu.Item
                 key="1"
                 onClick={() => setSelected("start")}
                 style={{
-                  color: hexagonStates.start.length === 0 && "red",
+                  color: hexagonStates.start.length === 0 ? "red" : undefined,
                 }}
               >
                 Start
@@ -67,7 +82,7 @@ const Toolbar = () => {
                 key="2"
                 onClick={() => setSelected("goal")}
                 style={{
-                  color: hexagonStates.goal.length === 0 && "red",
+                  color: hexagonStates.goal.length === 0 ? "red" : undefined,
                 }}
               >
                 Goal
@@ -85,12 +100,42 @@ const Toolbar = () => {
               key="sub3"
               icon={<NotificationOutlined />}
               title="Algorithm"
+              style={{
+                color: algorithm.length === 0 ? "red" : undefined,
+              }}
             >
               <Menu.Item key="9">option9</Menu.Item>
               <Menu.Item key="10">option10</Menu.Item>
               <Menu.Item key="11">option11</Menu.Item>
               <Menu.Item key="12">option12</Menu.Item>
             </SubMenu>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "20px",
+              }}
+            >
+              <Button
+                type="primary"
+                shape="round"
+                size={"large"}
+                disabled={
+                  algorithm.length === 0 ||
+                  hexagonStates.goal.length === 0 ||
+                  hexagonStates.start.length === 0
+                }
+                onClick={() =>
+                  // TODO: To access gridSize need hexagonGrid not to re-render
+                  // whenever props the toolbar re-renders, therefore turn hexagonGrid
+                  // into class component and add shouldComponentUpdate function
+                  router(algorithm, hexagonStates, gridSize.x, gridSize.y)
+                }
+              >
+                Visualise
+              </Button>
+            </div>
           </Menu>
         </Sider>
         <Canvas
@@ -99,7 +144,7 @@ const Toolbar = () => {
             selected,
             hexagonStates,
             setHexagonStates,
-            siderWidth
+            siderWidth,
           }}
         />
       </Layout>

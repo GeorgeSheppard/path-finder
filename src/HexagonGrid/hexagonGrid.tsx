@@ -1,5 +1,34 @@
 import React, { useState } from "react";
 import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
+import { twoDToOneDCoord } from "../Utilities/utilities";
+import {
+  HexagonStates,
+  Setter,
+  HexagonTypes,
+  Coord,
+  Coords,
+} from "../types/dtypes";
+import { WindowSize } from "../Canvas/canvas";
+
+type HexagonGridProps = {
+  width?: number;
+  borderWidth?: number;
+  spacing?: number;
+  hexagonStates: HexagonStates;
+  setHexagonStates: Setter;
+  selected: HexagonTypes;
+  siderWidth: number;
+  setGridSize: Setter;
+  windowSize: WindowSize;
+};
+
+type CreateGridReturn = {
+  coords: Coords;
+  offsetX: number;
+  offsetY: number;
+  sizeX: number;
+  sizeY: number;
+};
 
 // TODO: For a large number of hexagons the performance is poor, should add an useEffect
 // hook so that createGrid is only called when the hexagon props change
@@ -12,7 +41,7 @@ import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
  * spacing between each hexagon
  * @param {object} props
  */
-const HexagonGrid = (props) => {
+const HexagonGrid = (props: HexagonGridProps) => {
   const {
     width = 50,
     borderWidth = 5,
@@ -28,10 +57,10 @@ const HexagonGrid = (props) => {
   const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
 
   // Sent to the hexagons to allow state change for drag click
-  const [mouseDown, setMouseDown] = useState(false);
+  const [mouseDown, setMouseDown] = useState<boolean>(false);
 
-  const handleClick = (state) => {
-    return (event) => {
+  const handleClick = (state: boolean): Setter => {
+    return (event: React.MouseEvent<HTMLDivElement>) => {
       if (event.button === 0) {
         setMouseDown(state);
       }
@@ -41,9 +70,9 @@ const HexagonGrid = (props) => {
   /**
    * Given the size of the window to display the grid, calculates the list of possible
    * coordinates, the available border width for the grid, and the dimensions of the grid
-   * @param {int} windowSize
+   * @param {number} windowSize
    */
-  const createGrid = (windowSize) => {
+  const createGrid = (windowSize: WindowSize): CreateGridReturn | undefined => {
     if (windowSize.height !== 0 && windowSize.width !== 0) {
       const sizeX = Math.floor(
         (windowSize.width - siderWidth - horizontalSpacing / 2) /
@@ -60,7 +89,8 @@ const HexagonGrid = (props) => {
 
       for (let i = 0; i < sizeX; i++) {
         for (let j = 0; j < sizeY; j++) {
-          coords.push([i, j]);
+          const coord: Coord = [i, j];
+          coords.push(coord);
         }
       }
 
@@ -70,10 +100,10 @@ const HexagonGrid = (props) => {
 
   /**
    * Converts a coordinate into a pixel coordinate
-   * @param {int} x
-   * @param {int} y
+   * @param {number} x
+   * @param {number} y
    */
-  const coordToPixels = (x, y) => {
+  const coordToPixels = (x: number, y: number) => {
     let pixelsX = horizontalSpacing * x;
     const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
     if (y % 2 === 1) {
@@ -94,17 +124,18 @@ const HexagonGrid = (props) => {
    * @param {object} gridProps output of the createGrid function
    * @param {*} hexagonStates grid specification
    */
-  const hexagonStartingStates = (gridProps, hexagonStates) => {
+  const hexagonStartingStates = (
+    gridProps: CreateGridReturn | undefined,
+    hexagonStates: HexagonStates
+  ) => {
     if (gridProps) {
-      const hexagonStartingStates = new Array(gridProps.coords.length).fill(
-        "space"
-      );
-      const { sizeY } = gridProps;
+      const { sizeX, sizeY } = gridProps;
+      const hexagonStartingStates = new Array(sizeX * sizeY).fill("space");
 
       Object.entries(hexagonStates).forEach((row) => {
         const key = row[0];
-        row[1].forEach((coord) => {
-          hexagonStartingStates[coord[0] * sizeY + coord[1]] = key;
+        row[1].forEach((coord: Coord) => {
+          hexagonStartingStates[twoDToOneDCoord(coord, sizeY)] = key;
         });
       });
 
@@ -123,10 +154,11 @@ const HexagonGrid = (props) => {
   return (
     <div onMouseDown={handleClick(true)} onMouseUp={handleClick(false)}>
       {gridProps &&
+        parsedHexagonStates &&
         gridProps.coords.map((coord, i) => {
           const [x, y] = coord;
 
-          const transform = coordToPixels(x, y, spacing, width, borderWidth);
+          const transform = coordToPixels(x, y);
 
           const { offsetX, offsetY } = gridProps;
 

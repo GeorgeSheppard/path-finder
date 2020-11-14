@@ -1,21 +1,34 @@
 import React, { useRef, useEffect, useState } from "react";
 
+type CanvasProps = {
+  Component: Function;
+  [key: string]: any;
+};
+
+export type WindowSize = {
+  height: number;
+  width: number;
+};
+
 /**
  * Helper component that sends the size of the window it fills to the child
  * component
  * @param {object} props the child component, and any props to pass to the child
  * component
  */
-const Canvas = (props) => {
+const Canvas = (props: CanvasProps): JSX.Element => {
   const { Component, ...other } = props;
 
-  const ref = useRef(null);
-  const [windowSize, setWindowSize] = useState({ height: 0, width: 0 });
+  const ref = useRef<HTMLDivElement>(null);
+  const [windowSize, setWindowSize] = useState<WindowSize>({
+    height: 0,
+    width: 0,
+  });
 
   useEffect(() => {
     setWindowSize({
-      height: ref.current.offsetHeight,
-      width: ref.current.offsetWidth,
+      height: ref?.current?.offsetHeight ?? 0,
+      width: ref?.current?.offsetWidth ?? 0,
     });
   }, []);
 
