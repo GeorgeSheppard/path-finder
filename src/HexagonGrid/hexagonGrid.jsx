@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
+import { twoDToOneDCoord } from "../Utilities/utilities";
 
 // TODO: For a large number of hexagons the performance is poor, should add an useEffect
 // hook so that createGrid is only called when the hexagon props change
@@ -96,15 +97,13 @@ const HexagonGrid = (props) => {
    */
   const hexagonStartingStates = (gridProps, hexagonStates) => {
     if (gridProps) {
-      const hexagonStartingStates = new Array(gridProps.coords.length).fill(
-        "space"
-      );
-      const { sizeY } = gridProps;
+      const { sizeX, sizeY } = gridProps;
+      const hexagonStartingStates = new Array(sizeX * sizeY).fill("space");
 
       Object.entries(hexagonStates).forEach((row) => {
         const key = row[0];
         row[1].forEach((coord) => {
-          hexagonStartingStates[coord[0] * sizeY + coord[1]] = key;
+          hexagonStartingStates[twoDToOneDCoord(coord, sizeY)] = key;
         });
       });
 
