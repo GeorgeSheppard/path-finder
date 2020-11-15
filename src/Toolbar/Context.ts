@@ -18,3 +18,5 @@ export const HexagonGridPropertiesContext = React.createContext<
   setHexagonStates: (value: HexagonStates): void => {},
   selected: "wall",
 });
+
+export const MouseDownContext = React.createContext<boolean>(false);
