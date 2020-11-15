@@ -1,116 +1,47 @@
 import React, { useState } from "react";
-import Hexagon, { hexagonStylingProps } from "../Hexagon/hexagon";
-import { twoDToOneDCoord } from "../Utilities/utilities";
 import {
   HexagonStates,
-  Setter,
   HexagonTypes,
+  Setter,
   Coord,
   Coords,
 } from "../types/dtypes";
-import { WindowSize } from "../Canvas/canvas";
+import { CreateGridReturn } from "./hexagonGridManager";
+import { twoDToOneDCoord } from "../Utilities/utilities";
+import Hexagon, { FixedHexagonStylingProps } from "../Hexagon/hexagon";
 
 type HexagonGridProps = {
-  width?: number;
-  borderWidth?: number;
-  spacing?: number;
   hexagonStates: HexagonStates;
   setHexagonStates: Setter;
   selected: HexagonTypes;
-  siderWidth: number;
-  setGridSize: Setter;
-  windowSize: WindowSize;
+  pixelsCoords: Coords;
+  gridProps: CreateGridReturn;
+  hexagonCssProps: FixedHexagonStylingProps;
 };
 
-type CreateGridReturn = {
-  coords: Coords;
-  offsetX: number;
-  offsetY: number;
-  sizeX: number;
-  sizeY: number;
-};
-
-// TODO: For a large number of hexagons the performance is poor, should add an useEffect
-// hook so that createGrid is only called when the hexagon props change
-// should make it so that pixel coordinates are calculated once and stored
-// effectively the only function that should be run on a new render provided the grid stays
-// the same is the hexagonStartingStates function
-/**
- * Creates a grid of tesselating hexagons the size of the canvas object that
- * contains it, can define the width of an individual hexagon, the border size,
- * spacing between each hexagon
- * @param {object} props
- */
+// TODO: This is currently the component restricting performance, as each time hexagonStates changes (often with just one change)
+// the whole component rerenders, this performance is only a problem with smaller hexagons so leaving this for now, but could
+// later convert to a class component and use state to store things to reduce calculations (looking at hexagonStartingStates),
+// could also just look for the difference between old hexagonStates and new ones so that hexagonStartingStates just needs to be
+// run once for that specific hexagon
 const HexagonGrid = (props: HexagonGridProps) => {
   const {
-    width = 50,
-    borderWidth = 5,
-    spacing = 5,
     hexagonStates,
     setHexagonStates,
     selected,
-    siderWidth,
+    pixelsCoords,
+    gridProps,
+    hexagonCssProps,
   } = props;
 
-  // Width of the hexagon INCLUDES the borderwidth
-  const horizontalSpacing = width + spacing;
-  const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
+  const [mouseDown, setMouseDown] = useState(false);
 
-  // Sent to the hexagons to allow state change for drag click
-  const [mouseDown, setMouseDown] = useState<boolean>(false);
-
-  const handleClick = (state: boolean): Setter => {
+  const handleMouseDown = (state: boolean): Setter => {
     return (event: React.MouseEvent<HTMLDivElement>) => {
       if (event.button === 0) {
         setMouseDown(state);
       }
     };
-  };
-
-  /**
-   * Given the size of the window to display the grid, calculates the list of possible
-   * coordinates, the available border width for the grid, and the dimensions of the grid
-   * @param {number} windowSize
-   */
-  const createGrid = (windowSize: WindowSize): CreateGridReturn | undefined => {
-    if (windowSize.height !== 0 && windowSize.width !== 0) {
-      const sizeX = Math.floor(
-        (windowSize.width - siderWidth - horizontalSpacing / 2) /
-          horizontalSpacing
-      );
-
-      const sizeY = Math.floor(windowSize.height / verticalSpacing);
-
-      const offsetX =
-        (windowSize.width - siderWidth - (sizeX + 0.5) * horizontalSpacing) / 2;
-      const offsetY = (windowSize.height - (sizeY + 0.5) * verticalSpacing) / 2;
-
-      const coords = [];
-
-      for (let i = 0; i < sizeX; i++) {
-        for (let j = 0; j < sizeY; j++) {
-          const coord: Coord = [i, j];
-          coords.push(coord);
-        }
-      }
-
-      return { coords, offsetX, offsetY, sizeX, sizeY };
-    }
-  };
-
-  /**
-   * Converts a coordinate into a pixel coordinate
-   * @param {number} x
-   * @param {number} y
-   */
-  const coordToPixels = (x: number, y: number) => {
-    let pixelsX = horizontalSpacing * x;
-    const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
-    if (y % 2 === 1) {
-      pixelsX += horizontalSpacing / 2;
-    }
-
-    return { pixelsX, pixelsY };
   };
 
   /**
@@ -143,29 +74,23 @@ const HexagonGrid = (props: HexagonGridProps) => {
     }
   };
 
-  const gridProps = createGrid(props.windowSize);
-  // Calculate the styling props once and then use it for all hexagons
-  const hexagonProps = hexagonStylingProps({
-    width,
-    borderWidth,
-  });
   const parsedHexagonStates = hexagonStartingStates(gridProps, hexagonStates);
 
   return (
-    <div onMouseDown={handleClick(true)} onMouseUp={handleClick(false)}>
+    <div onMouseDown={handleMouseDown(true)} onMouseUp={handleMouseDown(false)}>
       {gridProps &&
         parsedHexagonStates &&
         gridProps.coords.map((coord, i) => {
           const [x, y] = coord;
 
-          const transform = coordToPixels(x, y);
+          const transform = pixelsCoords[i];
 
           const { offsetX, offsetY } = gridProps;
 
           // maps hexagons to correct coordinate and centre the entire grid
           const style = {
-            transform: `translate(${transform.pixelsX + offsetX}px, ${
-              transform.pixelsY + offsetY
+            transform: `translate(${transform[0] + offsetX}px, ${
+              transform[1] + offsetY
             }px)`,
           };
 
@@ -173,7 +98,7 @@ const HexagonGrid = (props: HexagonGridProps) => {
             <Hexagon
               key={`${x}:${y}`}
               style={style}
-              css={hexagonProps}
+              css={hexagonCssProps}
               {...{
                 type: parsedHexagonStates[i],
                 coord,

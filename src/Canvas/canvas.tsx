@@ -1,13 +1,25 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { createRef } from "react";
+import { Setter } from "../types/dtypes";
 
 type CanvasProps = {
   Component: Function;
   [key: string]: any;
+  setGridSize: Setter;
 };
 
 export type WindowSize = {
   height: number;
   width: number;
+};
+
+type Ref = React.RefObject<HTMLDivElement>;
+
+type CanvasState = {
+  ref: Ref;
+  windowSize: {
+    height: number;
+    width: number;
+  };
 };
 
 /**
@@ -16,34 +28,58 @@ export type WindowSize = {
  * @param {object} props the child component, and any props to pass to the child
  * component
  */
-const Canvas = (props: CanvasProps): JSX.Element => {
-  const { Component, ...other } = props;
+class Canvas extends React.Component<CanvasProps, CanvasState> {
+  constructor(props: CanvasProps) {
+    super(props);
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [windowSize, setWindowSize] = useState<WindowSize>({
-    height: 0,
-    width: 0,
-  });
+    this.state = {
+      ref: createRef(),
+      windowSize: {
+        height: 0,
+        width: 0,
+      },
+    };
+  }
 
-  useEffect(() => {
-    setWindowSize({
-      height: ref?.current?.offsetHeight ?? 0,
-      width: ref?.current?.offsetWidth ?? 0,
+  componentDidMount() {
+    const ref: Ref = this.state.ref;
+    this.setState({
+      windowSize: {
+        height: ref.current?.offsetHeight ?? 0,
+        width: ref.current?.offsetWidth ?? 0,
+      },
     });
-  }, []);
+  }
 
-  const canvasStyle = {
-    overflow: "hidden",
-    height: "100vh",
-    width: "100vw",
-    backgroundColor: "#dddddd",
-  };
+  shouldComponentUpdate(nextProps: CanvasProps, nextState: CanvasState) {
+    const currentWindow = this.state.windowSize;
+    const nextWindow = nextState.windowSize;
+    return (
+      currentWindow.height !== nextWindow.height ||
+      currentWindow.width !== nextWindow.width
+    );
+  }
 
-  return (
-    <div ref={ref} style={canvasStyle}>
-      <Component {...{ windowSize, ...other }} />
-    </div>
-  );
-};
+  render() {
+    const canvasStyle = {
+      overflow: "hidden",
+      height: "100vh",
+      width: "100vw",
+      backgroundColor: "#dddddd",
+    };
+
+    return (
+      <div ref={this.state.ref} style={canvasStyle}>
+        <this.props.Component
+          {...{
+            windowSize: this.state.windowSize,
+            siderWidth: this.props.siderWidth,
+            setGridSize: this.props.setGridSize,
+          }}
+        />
+      </div>
+    );
+  }
+}
 
 export default Canvas;
