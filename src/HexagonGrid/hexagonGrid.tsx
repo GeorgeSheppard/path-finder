@@ -9,6 +9,7 @@ import {
 import { CreateGridReturn } from "./hexagonGridManager";
 import { twoDToOneDCoord } from "../Utilities/utilities";
 import Hexagon, { FixedHexagonStylingProps } from "../Hexagon/hexagon";
+import { MouseDownContext } from "../Toolbar/Context";
 
 type HexagonGridProps = {
   hexagonStates: HexagonStates;
@@ -33,17 +34,6 @@ const HexagonGrid = (props: HexagonGridProps) => {
     gridProps,
     hexagonCssProps,
   } = props;
-
-  const [mouseDown, setMouseDown] = useState(false);
-
-  const handleMouseDown = (state: boolean): Setter => {
-    return (event: React.MouseEvent<HTMLDivElement>) => {
-      if (event.button === 0) {
-        setMouseDown(state);
-      }
-    };
-  };
-
   /**
    * Maps a grid specification of the form
    * {
@@ -77,40 +67,44 @@ const HexagonGrid = (props: HexagonGridProps) => {
   const parsedHexagonStates = hexagonStartingStates(gridProps, hexagonStates);
 
   return (
-    <div onMouseDown={handleMouseDown(true)} onMouseUp={handleMouseDown(false)}>
-      {gridProps &&
-        parsedHexagonStates &&
-        gridProps.coords.map((coord, i) => {
-          const [x, y] = coord;
+    <MouseDownContext.Consumer>
+      {(value) => (
+        <div>
+          {gridProps &&
+            parsedHexagonStates &&
+            gridProps.coords.map((coord, i) => {
+              const [x, y] = coord;
 
-          const transform = pixelsCoords[i];
+              const transform = pixelsCoords[i];
 
-          const { offsetX, offsetY } = gridProps;
+              const { offsetX, offsetY } = gridProps;
 
-          // maps hexagons to correct coordinate and centre the entire grid
-          const style = {
-            transform: `translate(${transform[0] + offsetX}px, ${
-              transform[1] + offsetY
-            }px)`,
-          };
+              // maps hexagons to correct coordinate and centre the entire grid
+              const style = {
+                transform: `translate(${transform[0] + offsetX}px, ${
+                  transform[1] + offsetY
+                }px)`,
+              };
 
-          return (
-            <Hexagon
-              key={`${x}:${y}`}
-              style={style}
-              css={hexagonCssProps}
-              {...{
-                type: parsedHexagonStates[i],
-                coord,
-                selected,
-                mouseDown,
-                hexagonStates,
-                setHexagonStates,
-              }}
-            />
-          );
-        })}
-    </div>
+              return (
+                <Hexagon
+                  key={`${x}:${y}`}
+                  style={style}
+                  css={hexagonCssProps}
+                  {...{
+                    type: parsedHexagonStates[i],
+                    coord,
+                    selected,
+                    mouseDown: value,
+                    hexagonStates,
+                    setHexagonStates,
+                  }}
+                />
+              );
+            })}
+        </div>
+      )}
+    </MouseDownContext.Consumer>
   );
 };
 

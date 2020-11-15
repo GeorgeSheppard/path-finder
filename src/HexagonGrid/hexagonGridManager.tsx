@@ -112,11 +112,18 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     );
     return (
       <HexagonGridPropertiesContext.Consumer>
-        {(value: GridPropertiesContext) => (
-          <HexagonGrid
-            {...{ ...value, hexagonCssProps, pixelsCoords, gridProps }}
-          />
-        )}
+        {(value: GridPropertiesContext) => {
+          return (
+            <HexagonGrid
+              {...{
+                ...value,
+                hexagonCssProps,
+                pixelsCoords,
+                gridProps,
+              }}
+            />
+          );
+        }}
       </HexagonGridPropertiesContext.Consumer>
     );
   } else {
