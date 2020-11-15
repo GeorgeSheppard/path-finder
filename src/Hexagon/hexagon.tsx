@@ -1,7 +1,22 @@
 import React from "react";
 import styled from "styled-components";
+import { Coord, HexagonStates, HexagonTypes, Setter } from "../types/dtypes";
 import { arrayEquals } from "../Utilities/utilities";
 
+export interface FixedHexagonStylingProps {
+  middleWidth: number;
+  middleHeight: number;
+  topBotDiameter: number;
+  margin: number;
+  topBotBorderWidth: number;
+  middleBorderWidth: number;
+  left: number;
+  topBot: number;
+}
+
+export interface StyledHexagonProps extends FixedHexagonStylingProps {
+  backgroundColor: string;
+}
 // TODO: Cannot find a way to set multiple properties to the same value,
 // would be useful for setting border-left and border-right at the same time,
 // have tried using , like with &:before &:after but that doesn't work
@@ -10,36 +25,42 @@ import { arrayEquals } from "../Utilities/utilities";
  */
 const StyledHexagon = styled.div`
   position: absolute;
-  width: ${(props) => `${props.middleWidth}px`};
-  height: ${(props) => `${props.middleHeight}px`};
-  background-color: ${(props) => props.backgroundColor};
-  border-left: ${(props) => borderStyle(props.middleBorderWidth)};
-  border-right: ${(props) => borderStyle(props.middleBorderWidth)};
+  width: ${(props: StyledHexagonProps) => `${props.middleWidth}px`};
+  height: ${(props: StyledHexagonProps) => `${props.middleHeight}px`};
+  background-color: ${(props: StyledHexagonProps) => props.backgroundColor};
+  border-left: ${(props: StyledHexagonProps) =>
+    borderStyle(props.middleBorderWidth)};
+  border-right: ${(props: StyledHexagonProps) =>
+    borderStyle(props.middleBorderWidth)};
   &:before,
   &:after {
     content: "";
     position: absolute;
     z-index: 1;
-    width: ${(props) => `${props.topBotDiameter}px`};
-    height: ${(props) => `${props.topBotDiameter}px`};
+    width: ${(props: StyledHexagonProps) => `${props.topBotDiameter}px`};
+    height: ${(props: StyledHexagonProps) => `${props.topBotDiameter}px`};
     transform: scaleY(0.5774) rotate(-45deg);
     background-color: inherit;
-    left: ${(props) => `${props.left}px`};
+    left: ${(props: StyledHexagonProps) => `${props.left}px`};
   }
   &:before {
-    top: ${(props) => `${props.topBot}px`};
-    border-top: ${(props) => borderStyle(props.topBotBorderWidth)};
-    border-right: ${(props) => borderStyle(props.topBotBorderWidth)};
+    top: ${(props: StyledHexagonProps) => `${props.topBot}px`};
+    border-top: ${(props: StyledHexagonProps) =>
+      borderStyle(props.topBotBorderWidth)};
+    border-right: ${(props: StyledHexagonProps) =>
+      borderStyle(props.topBotBorderWidth)};
   }
   &:after {
-    bottom: ${(props) => `${props.topBot}px`};
-    border-bottom: ${(props) => borderStyle(props.topBotBorderWidth)};
-    border-left: ${(props) => borderStyle(props.topBotBorderWidth)};
+    bottom: ${(props: StyledHexagonProps) => `${props.topBot}px`};
+    border-bottom: ${(props: StyledHexagonProps) =>
+      borderStyle(props.topBotBorderWidth)};
+    border-left: ${(props: StyledHexagonProps) =>
+      borderStyle(props.topBotBorderWidth)};
   }
 `;
 
 // Used in the CSS hexagon above
-const borderStyle = (borderWidth) => `solid ${borderWidth}px #333333`;
+const borderStyle = (borderWidth: number) => `solid ${borderWidth}px #333333`;
 
 /**
  * Returns an object containing all parameters that physically specify a hexagon
@@ -48,7 +69,10 @@ const borderStyle = (borderWidth) => `solid ${borderWidth}px #333333`;
  * @param {float} borderWidth: the width of the border, from the outer of the hexagon
  * to the outer of the border
  */
-export const hexagonStylingProps = ({ width, borderWidth }) => {
+export const hexagonStylingProps = ({
+  width,
+  borderWidth,
+}: any): FixedHexagonStylingProps => {
   return {
     middleWidth: width,
     middleHeight: (Math.sqrt(3) / 3) * width,
@@ -65,7 +89,7 @@ export const hexagonStylingProps = ({ width, borderWidth }) => {
  * Converts the type of a hexagon into the colour it's background should be
  * @param type: the state of the hexagon, currently 'space', 'wall', 'goal', or 'start'
  */
-const typeToStyling = (type) => {
+const typeToStyling = (type: string) => {
   let backgroundColor = "#64C7CC";
   switch (type) {
     case "space":
@@ -85,6 +109,17 @@ const typeToStyling = (type) => {
   return backgroundColor;
 };
 
+export interface HexagonProps {
+  type: HexagonTypes;
+  selected: HexagonTypes;
+  mouseDown: boolean;
+  css: any;
+  style: any;
+  setHexagonStates: Setter;
+  hexagonStates: HexagonStates;
+  coord: Coord;
+}
+
 /**
  * A general hexagon class, used to build up the hexagon grid.
  * The logic behind it is as follows:
@@ -96,7 +131,7 @@ const typeToStyling = (type) => {
  * - When each hexagon receives it's new type (according to the grid store), it updates only if it's current type
  * doesn't match the new one
  */
-class Hexagon extends React.Component {
+class Hexagon extends React.Component<HexagonProps> {
   /**
    * A mapping from state types to whether that state is limited in it's numbers or not
    * there can only be one goal and one start point, but many walls
@@ -115,7 +150,7 @@ class Hexagon extends React.Component {
    * been passed in
    * @param {object} nextProps: the new properties passed into the hexagon
    */
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: HexagonProps) {
     return nextProps.type !== this.props.type;
   }
 
@@ -126,7 +161,7 @@ class Hexagon extends React.Component {
    * @param {object} newHexagonStates: a copy of the hexagonStates object to modify
    * @returns newHexagonStates: with the old state of this hexagon removed
    */
-  removeOldState(oldType, newHexagonStates) {
+  removeOldState(oldType: HexagonTypes, newHexagonStates: HexagonStates) {
     if (oldType !== "space") {
       if (this.limitedState[oldType]) {
         newHexagonStates[oldType] = [];
@@ -146,7 +181,7 @@ class Hexagon extends React.Component {
    * @param {object} newHexagonStates: a copy of the hexagonStates object to modify
    * @returns newHexagonStates: with the new state of this hexagon added to it
    */
-  addNewState(newType, newHexagonStates) {
+  addNewState(newType: HexagonTypes, newHexagonStates: HexagonStates) {
     if (newType !== "space") {
       if (this.limitedState[newType]) {
         newHexagonStates[newType] = [this.props.coord];
@@ -163,7 +198,10 @@ class Hexagon extends React.Component {
    * @param {object} event: event object from e.g. a click
    * @param {string} oldType: 'space' | 'wall' | 'goal' | 'start'
    */
-  handleChange = (event, oldType) => {
+  handleChange = (
+    event: React.MouseEvent<HTMLElement>,
+    oldType: HexagonTypes
+  ) => {
     if (event.button === 0) {
       const newType = this.props.selected;
 
@@ -183,24 +221,33 @@ class Hexagon extends React.Component {
    * @param {object} event: onMouseOver event
    * @param {string} oldType: 'space' | 'wall' | 'goal' | 'start'
    */
-  handleHover = (event, oldType) => {
+  handleHover = (
+    event: React.MouseEvent<HTMLElement>,
+    oldType: HexagonTypes
+  ) => {
     if (this.props.mouseDown) {
       this.handleChange(event, oldType);
     }
   };
 
   render() {
-    const type = this.props.type;
+    const { type, css, style } = this.props as HexagonProps;
     const backgroundColor = typeToStyling(type);
 
     // NOTE: Type is stored in the functions instead of on this.state
     return (
       <StyledHexagon
-        {...{ ...this.props.css, backgroundColor }}
-        style={this.props.style}
-        onClick={(event) => this.handleChange(event, type)}
-        onMouseOver={(event) => this.handleHover(event, type)}
-        onMouseDown={(event) => this.handleChange(event, type)}
+        {...{ ...css, backgroundColor }}
+        style={style}
+        onClick={(event: React.MouseEvent<HTMLElement>) =>
+          this.handleChange(event, type)
+        }
+        onMouseOver={(event: React.MouseEvent<HTMLElement>) =>
+          this.handleHover(event, type)
+        }
+        onMouseDown={(event: React.MouseEvent<HTMLElement>) =>
+          this.handleChange(event, type)
+        }
       />
     );
   }

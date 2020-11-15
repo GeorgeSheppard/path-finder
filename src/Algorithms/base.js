@@ -1,5 +1,10 @@
 import { twoDToOneDCoord } from "../Utilities/utilities"
 
+export const router = (algorithm, hexagonStates, sizeX, sizeY) => {
+  console.log('router called');
+  console.log(algorithm, hexagonStates, sizeX, sizeY);
+}
+
 export const neighbours = (coord, sizeX, sizeY) => {
   const [x, y] = coord;
 

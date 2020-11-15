@@ -8,9 +8,10 @@ import {
 import "./toolbar.css";
 import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
-import HexagonGrid from "../HexagonGrid/hexagonGrid";
 import { router } from "../Algorithms/base";
 import { HexagonTypes, HexagonStates } from "../types/dtypes";
+import HexagonGridManager from "../HexagonGrid/hexagonGridManager";
+import { HexagonGridPropertiesContext } from "./Context";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
@@ -104,10 +105,12 @@ const Toolbar = () => {
                 color: algorithm.length === 0 ? "red" : undefined,
               }}
             >
-              <Menu.Item key="9">option9</Menu.Item>
-              <Menu.Item key="10">option10</Menu.Item>
-              <Menu.Item key="11">option11</Menu.Item>
-              <Menu.Item key="12">option12</Menu.Item>
+              <Menu.Item key="9" onClick={() => setAlgorithm("dijkstra")}>
+                Dijkstra
+              </Menu.Item>
+              <Menu.Item key="10" onClick={() => setAlgorithm("greedy")}>
+                Greedy
+              </Menu.Item>
             </SubMenu>
             <div
               style={{
@@ -138,15 +141,17 @@ const Toolbar = () => {
             </div>
           </Menu>
         </Sider>
-        <Canvas
-          Component={HexagonGrid}
-          {...{
-            selected,
-            hexagonStates,
-            setHexagonStates,
-            siderWidth,
-          }}
-        />
+        <HexagonGridPropertiesContext.Provider
+          value={{ hexagonStates, setHexagonStates, selected }}
+        >
+          <Canvas
+            Component={HexagonGridManager}
+            {...{
+              siderWidth,
+              setGridSize,
+            }}
+          />
+        </HexagonGridPropertiesContext.Provider>
       </Layout>
     </Layout>
   );
