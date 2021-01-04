@@ -1,23 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import Toolbar from "./Toolbar/toolbar";
-import { MouseDownContext } from "./Toolbar/Context";
+import { dispatchNewMouseState } from "./redux/dispatchers";
 
 const App = () => {
-  const [mouseDown, setMouseDown] = useState(false);
-
   const handleMouseDown = (state) => {
     return (event) => {
       if (event.button === 0) {
-        setMouseDown(state);
+        dispatchNewMouseState(state)
       }
     };
   };
 
   return (
     <div onMouseDown={handleMouseDown(true)} onMouseUp={handleMouseDown(false)}>
-      <MouseDownContext.Provider value={mouseDown}>
         <Toolbar />
-      </MouseDownContext.Provider>
     </div>
   );
 }

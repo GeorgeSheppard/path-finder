@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout, Menu, Button } from "antd";
 import {
   UserOutlined,
@@ -9,49 +9,23 @@ import "./toolbar.css";
 import "antd/dist/antd.css";
 import Canvas from "../Canvas/canvas";
 import { router } from "../Algorithms/base";
-import { HexagonTypes, HexagonStates } from "../types/dtypes";
 import HexagonGridManager from "../HexagonGrid/hexagonGridManager";
-import { HexagonGridPropertiesContext } from "./Context";
+import { useSelector } from "react-redux";
+import store, { Store } from "../redux/store";
+import {
+  dispatchNewSelected,
+  dispatchNewAlgorithm,
+} from "../redux/dispatchers";
 
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
-export type GridSize = {
-  x: number;
-  y: number;
-};
-
 const Toolbar = () => {
-  const [hexagonStates, setHexagonStates] = useState<HexagonStates>({
-    goal: [[7, 3]],
-    start: [[4, 5]],
-    wall: [
-      [8, 2],
-      [5, 4],
-      [6, 7],
-      [5, 5],
-      [6, 4],
-      [7, 4],
-      [6, 5],
-      [7, 6],
-      [4, 3],
-      [4, 2],
-      [3, 2],
-      [7, 7],
-      [8, 6],
-      [8, 5],
-    ],
-  });
-
-  const [gridSize, setGridSize] = useState<GridSize>({
-    x: 0,
-    y: 0,
-  });
-
-  const [selected, setSelected] = useState<HexagonTypes>("wall");
   const siderWidth: number = 200;
 
-  const [algorithm, setAlgorithm] = useState("");
+  const goal = useSelector((state: Store) => state.fullHexagonStates.goal);
+  const start = useSelector((state: Store) => state.fullHexagonStates.start);
+  const algorithm = useSelector((state: Store) => state.algorithm);
 
   return (
     <Layout>
@@ -64,36 +38,33 @@ const Toolbar = () => {
               title="Required"
               style={{
                 color:
-                  hexagonStates.start.length === 0 ||
-                  hexagonStates.goal.length === 0
-                    ? "red"
-                    : undefined,
+                  start.length === 0 || goal.length === 0 ? "red" : undefined,
               }}
             >
               <Menu.Item
                 key="1"
-                onClick={() => setSelected("start")}
+                onClick={() => dispatchNewSelected("start")}
                 style={{
-                  color: hexagonStates.start.length === 0 ? "red" : undefined,
+                  color: start.length === 0 ? "red" : undefined,
                 }}
               >
                 Start
               </Menu.Item>
               <Menu.Item
                 key="2"
-                onClick={() => setSelected("goal")}
+                onClick={() => dispatchNewSelected("goal")}
                 style={{
-                  color: hexagonStates.goal.length === 0 ? "red" : undefined,
+                  color: goal.length === 0 ? "red" : undefined,
                 }}
               >
                 Goal
               </Menu.Item>
             </SubMenu>
             <SubMenu key="sub2" icon={<LaptopOutlined />} title="Optional">
-              <Menu.Item key="3" onClick={() => setSelected("wall")}>
+              <Menu.Item key="3" onClick={() => dispatchNewSelected("wall")}>
                 Wall
               </Menu.Item>
-              <Menu.Item key="4" onClick={() => setSelected("space")}>
+              <Menu.Item key="4" onClick={() => dispatchNewSelected("space")}>
                 Space
               </Menu.Item>
             </SubMenu>
@@ -105,10 +76,16 @@ const Toolbar = () => {
                 color: algorithm.length === 0 ? "red" : undefined,
               }}
             >
-              <Menu.Item key="9" onClick={() => setAlgorithm("dijkstra")}>
+              <Menu.Item
+                key="9"
+                onClick={() => dispatchNewAlgorithm("dijkstra")}
+              >
                 Dijkstra
               </Menu.Item>
-              <Menu.Item key="10" onClick={() => setAlgorithm("greedy")}>
+              <Menu.Item
+                key="10"
+                onClick={() => dispatchNewAlgorithm("greedy")}
+              >
                 Greedy
               </Menu.Item>
             </SubMenu>
@@ -126,32 +103,31 @@ const Toolbar = () => {
                 size={"large"}
                 disabled={
                   algorithm.length === 0 ||
-                  hexagonStates.goal.length === 0 ||
-                  hexagonStates.start.length === 0
+                  goal.length === 0 ||
+                  start.length === 0
                 }
-                onClick={() =>
-                  // TODO: To access gridSize need hexagonGrid not to re-render
-                  // whenever props the toolbar re-renders, therefore turn hexagonGrid
-                  // into class component and add shouldComponentUpdate function
-                  router(algorithm, hexagonStates, gridSize.x, gridSize.y)
-                }
+                onClick={() => {
+                  const gridSize = store.getState().gridSize;
+                  const hexagonStates = store.getState().fullHexagonStates;
+                  router(
+                    algorithm,
+                    hexagonStates,
+                    gridSize.sizeX,
+                    gridSize.sizeY
+                  );
+                }}
               >
                 Visualise
               </Button>
             </div>
           </Menu>
         </Sider>
-        <HexagonGridPropertiesContext.Provider
-          value={{ hexagonStates, setHexagonStates, selected }}
-        >
-          <Canvas
-            Component={HexagonGridManager}
-            {...{
-              siderWidth,
-              setGridSize,
-            }}
-          />
-        </HexagonGridPropertiesContext.Provider>
+        <Canvas
+          Component={HexagonGridManager}
+          {...{
+            siderWidth,
+          }}
+        />
       </Layout>
     </Layout>
   );
