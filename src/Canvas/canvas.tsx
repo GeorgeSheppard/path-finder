@@ -1,10 +1,8 @@
 import React, { createRef } from "react";
-import { Setter } from "../types/dtypes";
 
 type CanvasProps = {
   Component: Function;
   [key: string]: any;
-  setGridSize: Setter;
 };
 
 export type WindowSize = {
@@ -74,7 +72,6 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
           {...{
             windowSize: this.state.windowSize,
             siderWidth: this.props.siderWidth,
-            setGridSize: this.props.setGridSize,
           }}
         />
       </div>

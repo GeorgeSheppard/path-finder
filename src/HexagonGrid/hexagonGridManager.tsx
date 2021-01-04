@@ -1,12 +1,9 @@
 import React from "react";
 import { WindowSize } from "../Canvas/canvas";
 import HexagonGrid from "./hexagonGrid";
-import { Coord, Coords, Setter } from "../types/dtypes";
+import { Coord, Coords } from "../types/dtypes";
 import { hexagonStylingProps } from "../Hexagon/hexagon";
-import {
-  HexagonGridPropertiesContext,
-  GridPropertiesContext,
-} from "../Toolbar/Context";
+import { dispatchNewGridSize } from "../redux/dispatchers";
 
 type HexagonGridManagerProps = {
   width?: number;
@@ -14,7 +11,6 @@ type HexagonGridManagerProps = {
   spacing?: number;
   siderWidth: number;
   windowSize: WindowSize;
-  setGridSize: Setter;
 };
 
 export type CreateGridReturn = {
@@ -37,7 +33,6 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     spacing = 5,
     siderWidth,
     windowSize,
-    setGridSize,
   } = props;
 
   const horizontalSpacing = width + spacing;
@@ -97,10 +92,7 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
   const gridProps = createGrid(windowSize, siderWidth);
 
   if (gridProps) {
-    setGridSize({
-      x: gridProps?.sizeX,
-      y: gridProps?.sizeY,
-    });
+    dispatchNewGridSize(gridProps?.sizeX, gridProps?.sizeY);
     // Calculate the styling props once and then use it for all hexagons
     const hexagonCssProps = hexagonStylingProps({
       width,
@@ -111,20 +103,13 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
       coordToPixels(...coord)
     );
     return (
-      <HexagonGridPropertiesContext.Consumer>
-        {(value: GridPropertiesContext) => {
-          return (
-            <HexagonGrid
-              {...{
-                ...value,
-                hexagonCssProps,
-                pixelsCoords,
-                gridProps,
-              }}
-            />
-          );
+      <HexagonGrid
+        {...{
+          hexagonCssProps,
+          pixelsCoords,
+          gridProps,
         }}
-      </HexagonGridPropertiesContext.Consumer>
+      />
     );
   } else {
     return null;
