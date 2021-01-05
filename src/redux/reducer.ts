@@ -8,7 +8,9 @@ const limitedState = {
   wall: false,
   goal: true,
   start: true,
-  space: false
+  space: false,
+  animated: false,
+  path: false
 }
 
 export const stateReducer = (state: Store | undefined = initialState, action: Actions) => {

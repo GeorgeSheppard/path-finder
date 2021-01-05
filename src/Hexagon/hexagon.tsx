@@ -10,10 +10,9 @@ export interface FixedHexagonStylingProps {
   middleHeight: number;
   topBotDiameter: number;
   margin: number;
-  topBotBorderWidth: number;
-  middleBorderWidth: number;
   left: number;
   topBot: number;
+  scaleTransform: number;
 }
 
 export interface StyledHexagonProps extends FixedHexagonStylingProps {
@@ -26,43 +25,40 @@ export interface StyledHexagonProps extends FixedHexagonStylingProps {
  * A CSS hexagon, with configurable size, colours, and border
  */
 const StyledHexagon = styled.div`
+  transition: 0.2s;
   position: absolute;
   width: ${(props: StyledHexagonProps) => `${props.middleWidth}px`};
   height: ${(props: StyledHexagonProps) => `${props.middleHeight}px`};
   background-color: ${(props: StyledHexagonProps) => props.backgroundColor};
-  border-left: ${(props: StyledHexagonProps) =>
-    borderStyle(props.middleBorderWidth)};
-  border-right: ${(props: StyledHexagonProps) =>
-    borderStyle(props.middleBorderWidth)};
   &:before,
   &:after {
     content: "";
     position: absolute;
-    z-index: 1;
     width: ${(props: StyledHexagonProps) => `${props.topBotDiameter}px`};
     height: ${(props: StyledHexagonProps) => `${props.topBotDiameter}px`};
-    transform: scaleY(0.5774) rotate(-45deg);
-    background-color: inherit;
     left: ${(props: StyledHexagonProps) => `${props.left}px`};
-  }
-  &:before {
-    top: ${(props: StyledHexagonProps) => `${props.topBot}px`};
-    border-top: ${(props: StyledHexagonProps) =>
-      borderStyle(props.topBotBorderWidth)};
-    border-right: ${(props: StyledHexagonProps) =>
-      borderStyle(props.topBotBorderWidth)};
-  }
-  &:after {
-    bottom: ${(props: StyledHexagonProps) => `${props.topBot}px`};
-    border-bottom: ${(props: StyledHexagonProps) =>
-      borderStyle(props.topBotBorderWidth)};
-    border-left: ${(props: StyledHexagonProps) =>
-      borderStyle(props.topBotBorderWidth)};
-  }
-`;
+      transform: scaleY(0.5773502692) rotate(-45deg);
+      background-color: inherit;
+    }
+    &:before {
+      top: ${(props: StyledHexagonProps) => `${props.topBot}px`};
+    }
+    &:after {
+      bottom: ${(props: StyledHexagonProps) => `${props.topBot}px`};
+    }
+    `;
 
-// Used in the CSS hexagon above
-const borderStyle = (borderWidth: number) => `solid ${borderWidth}px #333333`;
+const StyledHexagonWithBorder = (props: any) => {
+  const { largeHex, smallHex } = props;
+
+  const leftShift = (largeHex.middleWidth - smallHex.middleWidth) / 2
+  const downShift = (largeHex.middleHeight - smallHex.middleHeight) / 2
+  const smallHexTransform = `translate(${leftShift}px, ${downShift}px)`
+
+  return <StyledHexagon {...{...largeHex, ...props, backgroundColor: "#000000"}} style={{zIndex: 1, ...props.style}}>
+    <StyledHexagon {...{...smallHex, backgroundColor: props.backgroundColor }} style={{zIndex: 5, transform: smallHexTransform}}/>
+  </StyledHexagon>
+}
 
 /**
  * Returns an object containing all parameters that physically specify a hexagon
@@ -72,18 +68,16 @@ const borderStyle = (borderWidth: number) => `solid ${borderWidth}px #333333`;
  * to the outer of the border
  */
 export const hexagonStylingProps = ({
-  width,
-  borderWidth,
+  width
 }: any): FixedHexagonStylingProps => {
   return {
     middleWidth: width,
     middleHeight: (Math.sqrt(3) / 3) * width,
     topBotDiameter: width / Math.sqrt(2),
     margin: (width * Math.sqrt(3)) / 6,
-    topBotBorderWidth: borderWidth * Math.sqrt(2),
-    middleBorderWidth: borderWidth,
-    left: -borderWidth - width / (Math.sqrt(2) * 2) + width / 2,
+    left: - width / (Math.sqrt(2) * 2) + width / 2,
     topBot: -width / (Math.sqrt(2) * 2),
+    scaleTransform: Math.sqrt(3) / 3,
   };
 };
 
@@ -92,27 +86,29 @@ export const hexagonStylingProps = ({
  * @param type: the state of the hexagon, currently 'space', 'wall', 'goal', or 'start'
  */
 const typeToStyling = (type: string) => {
-  let backgroundColor = "#64C7CC";
   switch (type) {
     case "space":
       break;
     case "wall":
-      backgroundColor = "#000000";
-      break;
+      return "#000000";
     case "goal":
-      backgroundColor = "#00ff00";
-      break;
+      return "#00ff00";
     case "start":
-      backgroundColor = "#ff0000";
-      break;
+      return "#ff0000";
+    case "animated":
+      return "#ffff00"
+    case "path":
+      return "#ffa500";
     default:
       break;
   }
-  return backgroundColor;
-};
+  return "#64C7CC";
+}
 
 export interface HexagonProps {
-  css: any;
+  largeHex: any;
+  smallHex: any;
+  key: string;
   style: any;
   coord: Coord;
 }
@@ -126,6 +122,10 @@ const Hexagon = (props: HexagonProps) => {
       const newType = store.getState().selected;
       if (newType !== oldType) {
         dispatchHexagonState(props.coord, newType);
+      }
+    } else if (event.button === 2) {
+      if ("space" !== oldType) {
+        dispatchHexagonState(props.coord, "space");
       }
     }
   };
@@ -142,12 +142,12 @@ const Hexagon = (props: HexagonProps) => {
   };
 
   const type = useHexagonState(props.coord);
-  const { css, style } = props as HexagonProps;
+  const { largeHex, smallHex, style } = props as HexagonProps;
   const backgroundColor = typeToStyling(type);
   console.log("rendering");
   return (
-    <StyledHexagon
-      {...{ ...css, backgroundColor }}
+    <StyledHexagonWithBorder
+      {...{ largeHex, smallHex, backgroundColor }}
       style={style}
       onClick={(event: React.MouseEvent<HTMLElement>) =>
         handleChange(event, type)
@@ -161,6 +161,7 @@ const Hexagon = (props: HexagonProps) => {
       onDragStart={(event: React.MouseEvent<HTMLElement>) =>
         event.preventDefault()
       }
+      onContextMenu={(event: React.MouseEvent<HTMLElement>)=> event.preventDefault()}
     />
   );
 };

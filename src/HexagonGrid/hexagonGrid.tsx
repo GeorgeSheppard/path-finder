@@ -6,11 +6,12 @@ import Hexagon, { FixedHexagonStylingProps } from "../Hexagon/hexagon";
 type HexagonGridProps = {
   pixelsCoords: Coords;
   gridProps: CreateGridReturn;
-  hexagonCssProps: FixedHexagonStylingProps;
+  largeHex: FixedHexagonStylingProps;
+  smallHex: FixedHexagonStylingProps;
 };
 
 const HexagonGrid = (props: HexagonGridProps) => {
-  const { pixelsCoords, gridProps, hexagonCssProps } = props;
+  const { pixelsCoords, gridProps, smallHex, largeHex } = props;
 
   return (
     <div>
@@ -33,7 +34,8 @@ const HexagonGrid = (props: HexagonGridProps) => {
             <Hexagon
               key={`${x}:${y}`}
               style={style}
-              css={hexagonCssProps}
+              largeHex={largeHex}
+              smallHex={smallHex}
               {...{
                 coord,
               }}
