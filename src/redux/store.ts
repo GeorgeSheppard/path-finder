@@ -41,6 +41,8 @@ export const initialState: Store = {
       [8, 6],
       [8, 5],
     ],
+    animated: [[8, 3]],
+    path: [[8, 4]]
   }, 
   individualHexagonStates: {
     "7,3": "goal",
@@ -58,7 +60,9 @@ export const initialState: Store = {
     "3,2":"wall",
     "7,7":"wall",
     "8,6":"wall",
-    "8,5": "wall"
+    "8,5": "wall",
+    "8,3": "animated",
+    "8,4": "path"
 },
   gridSize: {
     sizeX: 0,

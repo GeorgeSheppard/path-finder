@@ -29,7 +29,7 @@ export type CreateGridReturn = {
 const HexagonGridManager = (props: HexagonGridManagerProps) => {
   const {
     width = 50,
-    borderWidth = 5,
+    borderWidth = 10,
     spacing = 5,
     siderWidth,
     windowSize,
@@ -93,11 +93,14 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
 
   if (gridProps) {
     dispatchNewGridSize(gridProps?.sizeX, gridProps?.sizeY);
+    
     // Calculate the styling props once and then use it for all hexagons
     const hexagonCssProps = hexagonStylingProps({
       width,
-      borderWidth,
     });
+    const reducedHexagonCssProps = hexagonStylingProps({
+      width: width - borderWidth,
+    })
 
     const pixelsCoords: Coords = gridProps?.coords.map((coord: Coord) =>
       coordToPixels(...coord)
@@ -105,7 +108,8 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     return (
       <HexagonGrid
         {...{
-          hexagonCssProps,
+          largeHex: hexagonCssProps,
+          smallHex: reducedHexagonCssProps,
           pixelsCoords,
           gridProps,
         }}
