@@ -72,6 +72,7 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
           {...{
             windowSize: this.state.windowSize,
             siderWidth: this.props.siderWidth,
+            headerHeight: this.props.headerHeight,
           }}
         />
       </div>

@@ -46,6 +46,14 @@ export const neighbours = (
     }) as Coords;
 };
 
+export class PathError extends Error {
+  constructor(m: string) {
+    super(m);
+
+    Object.setPrototypeOf(this, PathError.prototype);
+  }
+}
+
 export const solver = (
   grid1D: Grid1D,
   shortestPathGrid: ShortestPathGrid,
@@ -88,7 +96,13 @@ export const solver = (
       } else if (type === -1) {
         // Wall tile found
         if (coords.length === 0) {
-          throw new Error("PathError");
+          console.log(
+            "Ran out of coordinates",
+            grid1D,
+            shortestPathGrid,
+            coords,
+            checkedCoordsOrder
+          );
         }
       } else {
         // Empty tile
@@ -113,7 +127,7 @@ export const solver = (
     if (coord !== -1) {
       path.push(coord);
     } else {
-      console.log("Path contains unsolved route", path, shortestPathGrid);
+      throw new PathError("Path not possible");
     }
   }
 
