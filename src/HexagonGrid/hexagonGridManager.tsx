@@ -10,6 +10,7 @@ type HexagonGridManagerProps = {
   borderWidth?: number;
   spacing?: number;
   siderWidth: number;
+  headerHeight: number;
   windowSize: WindowSize;
 };
 
@@ -32,6 +33,7 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     borderWidth = 10,
     spacing = 5,
     siderWidth,
+    headerHeight,
     windowSize,
   } = props;
 
@@ -45,7 +47,8 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
    */
   const createGrid = (
     windowSize: WindowSize,
-    siderWidth: number
+    siderWidth: number,
+    headerHeight: number
   ): CreateGridReturn | undefined => {
     if (windowSize.height !== 0 && windowSize.width !== 0) {
       const sizeX = Math.floor(
@@ -54,12 +57,15 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
       );
 
       const sizeY = Math.floor(
-        (windowSize.height - (Math.sqrt(3) / 3) * width) / verticalSpacing
+        (windowSize.height - headerHeight - (Math.sqrt(3) / 3) * width) /
+          verticalSpacing
       );
 
       const offsetX =
         (windowSize.width - siderWidth - (sizeX + 0.5) * horizontalSpacing) / 2;
-      const offsetY = (windowSize.height - (sizeY + 0.5) * verticalSpacing) / 2;
+      const offsetY =
+        (windowSize.height - headerHeight - (sizeY + 0.5) * verticalSpacing) /
+        2;
 
       const coords: Coords = [];
 
@@ -89,18 +95,18 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     return [pixelsX, pixelsY];
   };
 
-  const gridProps = createGrid(windowSize, siderWidth);
+  const gridProps = createGrid(windowSize, siderWidth, headerHeight);
 
   if (gridProps) {
     dispatchNewGridSize(gridProps?.sizeX, gridProps?.sizeY);
-    
+
     // Calculate the styling props once and then use it for all hexagons
     const hexagonCssProps = hexagonStylingProps({
       width,
     });
     const reducedHexagonCssProps = hexagonStylingProps({
       width: width - borderWidth,
-    })
+    });
 
     const pixelsCoords: Coords = gridProps?.coords.map((coord: Coord) =>
       coordToPixels(...coord)

@@ -1,11 +1,12 @@
 import { twoDToOneDCoord } from "../Utilities/utilities";
-import { solver } from "./solver";
+import { solver, PathError } from "./solver";
 import { dijkstraMoveOrder } from "./Dijkstra/dijkstra";
 import {
   dispatchAnimationStopped,
   dispatchHexagonState,
 } from "../redux/dispatchers";
 import store from "../redux/store";
+import { openNotification } from "../Utilities/utilities";
 
 export const router = (algorithm, hexagonStates, sizeX, sizeY) => {
   let moveOrder;
@@ -56,9 +57,14 @@ export const pathFinder = async (moveOrder, hexagonStates, sizeX, sizeY) => {
     const pathPeriod = 3000 / path.length;
     const checkedPeriod = 10000 / coordsOrder.length;
 
+    dispatchAnimationStopped();
+
     async function dispatchPath(path) {
       if (!store.getState().reset) {
         if (path.length > 0) {
+          if (path.length === 1) {
+            dispatchAnimationStopped();
+          }
           const coord = path.shift();
           dispatchHexagonState(coord, "path");
           setTimeout(() => dispatchPath(path), pathPeriod);
@@ -87,6 +93,13 @@ export const pathFinder = async (moveOrder, hexagonStates, sizeX, sizeY) => {
 
     dispatchSolverAnimation(coordsOrder, path);
   } catch (error) {
+    if (error instanceof PathError) {
+      openNotification(
+        "Path not possible",
+        "The path you have created does not have a valid route to get to the goal, please create another maze.",
+        10
+      );
+    }
     console.log("Error", error);
   }
 };
