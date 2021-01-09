@@ -12,6 +12,7 @@ import { router } from "../Algorithms/base";
 import HexagonGridManager from "../HexagonGrid/hexagonGridManager";
 import { useSelector } from "react-redux";
 import store, { Store } from "../redux/store";
+import { dispatchResetAnimation } from "../redux/dispatchers";
 import {
   dispatchNewSelected,
   dispatchNewAlgorithm,
@@ -25,6 +26,9 @@ const Toolbar = () => {
 
   const goal = useSelector((state: Store) => state.fullHexagonStates.goal);
   const start = useSelector((state: Store) => state.fullHexagonStates.start);
+  const animated = useSelector(
+    (state: Store) => state.fullHexagonStates.animated.length !== 0
+  );
   const algorithm = useSelector((state: Store) => state.algorithm);
 
   return (
@@ -82,19 +86,21 @@ const Toolbar = () => {
               >
                 Dijkstra
               </Menu.Item>
-              <Menu.Item
+              {/* <Menu.Item
                 key="10"
                 onClick={() => dispatchNewAlgorithm("greedy")}
               >
                 Greedy
-              </Menu.Item>
+              </Menu.Item> */}
             </SubMenu>
             <div
               style={{
-                display: "flex",
+                // display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 marginTop: "20px",
+                marginRight: "10px",
+                marginLeft: "10px",
               }}
             >
               <Button
@@ -116,8 +122,22 @@ const Toolbar = () => {
                     gridSize.sizeY
                   );
                 }}
+                block={true}
               >
                 Visualise
+              </Button>
+              <Button
+                type="primary"
+                shape="round"
+                size={"large"}
+                disabled={!animated}
+                onClick={() => dispatchResetAnimation()}
+                style={{
+                  marginTop: "20px",
+                }}
+                block
+              >
+                Reset
               </Button>
             </div>
           </Menu>
