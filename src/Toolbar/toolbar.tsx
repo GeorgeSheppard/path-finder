@@ -4,6 +4,7 @@ import {
   GithubOutlined,
   LinkedinOutlined,
   AppstoreAddOutlined,
+  SettingOutlined,
   CalculatorOutlined,
 } from "@ant-design/icons";
 import "./toolbar.css";
@@ -29,9 +30,7 @@ const { SubMenu } = Menu;
 const { Sider, Header } = Layout;
 
 const Toolbar = (props: any) => {
-  console.log("toolbar props", props);
-  console.log("height", props.windowSize.height - 70);
-
+  console.log("props", props);
   const siderWidth: number = 200;
   const headerHeight: number = 70;
   const headerStyle = {
@@ -54,6 +53,7 @@ const Toolbar = (props: any) => {
   return (
     <Layout>
       <Header
+        data-tut="reactour-header"
         style={{ ...headerStyle, paddingLeft: "0px", paddingRight: "0px" }}
       >
         <div
@@ -83,6 +83,7 @@ const Toolbar = (props: any) => {
           <Menu.Item
             key="tutorial"
             style={{ ...headerStyle, position: "absolute", top: 0, left: 0 }}
+            onClick={() => props.setIsTourOpen(true)}
           >
             Tutorial
           </Menu.Item>
@@ -166,13 +167,18 @@ const Toolbar = (props: any) => {
         </Menu>
       </Header>
       <Layout>
-        <Sider width={siderWidth} className="site-layout-background">
+        <Sider
+          width={siderWidth}
+          className="site-layout-background"
+          data-tut="reactour-sider"
+        >
           <Menu
             mode="inline"
             style={{ height: `${props.windowSize.height - headerHeight}px` }}
           >
             <SubMenu
               key="sub1"
+              data-tut="reactour-tiles"
               icon={<AppstoreAddOutlined />}
               title="Tiles"
               style={{
@@ -207,6 +213,7 @@ const Toolbar = (props: any) => {
             </SubMenu>
             <SubMenu
               key="sub3"
+              data-tut="reactour-algorithm"
               icon={<CalculatorOutlined />}
               title="Algorithm"
               style={{
@@ -228,7 +235,8 @@ const Toolbar = (props: any) => {
             </SubMenu>
             <SubMenu
               key="mazes"
-              icon={<CalculatorOutlined />}
+              data-tut="reactour-mazes"
+              icon={<SettingOutlined />}
               title="Preset Mazes"
             >
               <Menu.Item
@@ -291,6 +299,7 @@ const Toolbar = (props: any) => {
                 type="primary"
                 shape="round"
                 size={"large"}
+                data-tut="reactour-visualise"
                 disabled={
                   algorithm.length === 0 ||
                   goal.length === 0 ||
@@ -316,6 +325,7 @@ const Toolbar = (props: any) => {
               </Button>
               <Button
                 type="primary"
+                data-tut="reactour-reset"
                 shape="round"
                 size={"large"}
                 disabled={!animated}
@@ -338,20 +348,13 @@ const Toolbar = (props: any) => {
             width: props.windowSize.width,
           }}
         />
-        {/* <Canvas
-          Component={HexagonGridManager}
-          {...{
-            siderWidth,
-            headerHeight,
-          }}
-        /> */}
       </Layout>
     </Layout>
   );
 };
 
-const Page = () => {
-  return <Canvas Component={Toolbar} />;
+const Page = (props: any) => {
+  return <Canvas Component={Toolbar} {...props} />;
 };
 
 export default Page;
