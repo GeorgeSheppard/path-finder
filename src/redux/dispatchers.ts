@@ -8,6 +8,7 @@ import {
   NEW_GRID_SIZE,
   RESET_ANIMATIONS,
   ANIMATION_STOPPED,
+  PRESET_GRID,
 } from "./actions";
 import store from "./store";
 
@@ -48,7 +49,7 @@ export const dispatchNewAlgorithm = (algorithm: Algorithms) => {
   });
 };
 
-export const dispatchNewGridSize = (sizeX: number, sizeY: number) => {
+export const dispatchNewGridSize = (sizeX = -1, sizeY = -1) => {
   store.dispatch({
     type: NEW_GRID_SIZE,
     payload: {
@@ -67,5 +68,14 @@ export const dispatchResetAnimation = () => {
 export const dispatchAnimationStopped = () => {
   store.dispatch({
     type: ANIMATION_STOPPED,
+  });
+};
+
+export const dispatchPresetGrid = (name: string) => {
+  store.dispatch({
+    type: PRESET_GRID,
+    payload: {
+      name,
+    },
   });
 };

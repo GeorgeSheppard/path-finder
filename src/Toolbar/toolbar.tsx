@@ -1,11 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect } from "react";
 import { Layout, Menu, Button } from "antd";
 import {
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
   GithubOutlined,
   LinkedinOutlined,
+  AppstoreAddOutlined,
+  CalculatorOutlined,
 } from "@ant-design/icons";
 import "./toolbar.css";
 import "antd/dist/antd.css";
@@ -14,19 +13,25 @@ import { router } from "../Algorithms/base";
 import HexagonGridManager from "../HexagonGrid/hexagonGridManager";
 import { useSelector } from "react-redux";
 import store, { Store } from "../redux/store";
-import { dispatchResetAnimation } from "../redux/dispatchers";
+import {
+  dispatchResetAnimation,
+  dispatchPresetGrid,
+  dispatchNewGridSize,
+} from "../redux/dispatchers";
 import {
   dispatchNewSelected,
   dispatchNewAlgorithm,
 } from "../redux/dispatchers";
-import { Overlay } from "react-bootstrap";
 import maze from "../assets/maze.svg";
 import Paragraph from "antd/lib/typography/Paragraph";
 
 const { SubMenu } = Menu;
 const { Sider, Header } = Layout;
 
-const Toolbar = () => {
+const Toolbar = (props: any) => {
+  console.log("toolbar props", props);
+  console.log("height", props.windowSize.height - 70);
+
   const siderWidth: number = 200;
   const headerHeight: number = 70;
   const headerStyle = {
@@ -40,7 +45,11 @@ const Toolbar = () => {
   );
   const algorithm = useSelector((state: Store) => state.algorithm);
 
-  const [displayPlayback, setDisplayPlayback] = useState(false);
+  // const [displayPlayback, setDisplayPlayback] = useState(false);
+
+  useEffect(() => {
+    dispatchPresetGrid("Default");
+  }, []);
 
   return (
     <Layout>
@@ -77,26 +86,25 @@ const Toolbar = () => {
           >
             Tutorial
           </Menu.Item>
-          <Menu.Item
+          {/* <Menu.Item
             key="playback"
             style={{ ...headerStyle, position: "relative", float: "left" }}
           >
             Playback Controls
-          </Menu.Item>
-          <Menu.Item
-            key="phone"
+          </Menu.Item> */}
+          <Paragraph
             style={{
               ...headerStyle,
+              color: "#a6adac",
               position: "absolute",
               top: 0,
-              right: 160,
-              height: `${headerHeight}px`,
+              right: 180,
             }}
+            copyable
           >
-            <Paragraph style={{ color: "#a6adac" }} copyable>
-              +44 (0)7956-731633
-            </Paragraph>
-          </Menu.Item>
+            +44 (0)7956-731633
+          </Paragraph>
+          {/* </Menu.Item> */}
           <Menu.Item
             key="github"
             style={{
@@ -105,7 +113,7 @@ const Toolbar = () => {
               float: "right",
               position: "absolute",
               top: 0,
-              right: 80,
+              right: 84,
               height: `${headerHeight}px`,
             }}
           >
@@ -159,11 +167,14 @@ const Toolbar = () => {
       </Header>
       <Layout>
         <Sider width={siderWidth} className="site-layout-background">
-          <Menu mode="inline" style={{ height: "100vh" }}>
+          <Menu
+            mode="inline"
+            style={{ height: `${props.windowSize.height - headerHeight}px` }}
+          >
             <SubMenu
               key="sub1"
-              icon={<UserOutlined />}
-              title="Required"
+              icon={<AppstoreAddOutlined />}
+              title="Tiles"
               style={{
                 color:
                   start.length === 0 || goal.length === 0 ? "red" : undefined,
@@ -176,7 +187,7 @@ const Toolbar = () => {
                   color: start.length === 0 ? "red" : undefined,
                 }}
               >
-                Start
+                {start.length === 0 ? "Start (required)" : "Start"}
               </Menu.Item>
               <Menu.Item
                 key="2"
@@ -185,10 +196,8 @@ const Toolbar = () => {
                   color: goal.length === 0 ? "red" : undefined,
                 }}
               >
-                Goal
+                {goal.length === 0 ? "Goal (required)" : "Goal"}
               </Menu.Item>
-            </SubMenu>
-            <SubMenu key="sub2" icon={<LaptopOutlined />} title="Optional">
               <Menu.Item key="3" onClick={() => dispatchNewSelected("wall")}>
                 Wall
               </Menu.Item>
@@ -198,7 +207,7 @@ const Toolbar = () => {
             </SubMenu>
             <SubMenu
               key="sub3"
-              icon={<NotificationOutlined />}
+              icon={<CalculatorOutlined />}
               title="Algorithm"
               style={{
                 color: algorithm.length === 0 ? "red" : undefined,
@@ -216,6 +225,57 @@ const Toolbar = () => {
               >
                 Greedy
               </Menu.Item> */}
+            </SubMenu>
+            <SubMenu
+              key="mazes"
+              icon={<CalculatorOutlined />}
+              title="Preset Mazes"
+            >
+              <Menu.Item
+                key="Maze 1"
+                onClick={() => {
+                  dispatchPresetGrid("Default");
+                  dispatchNewGridSize();
+                }}
+              >
+                Default
+              </Menu.Item>
+              <Menu.Item
+                key="Maze 2"
+                onClick={() => {
+                  dispatchPresetGrid("CleanGrid");
+                  dispatchNewGridSize();
+                }}
+              >
+                Blank Grid
+              </Menu.Item>
+              <Menu.Item
+                key="Maze 3"
+                onClick={() => {
+                  dispatchPresetGrid("LongMaze");
+                  dispatchNewGridSize();
+                }}
+              >
+                Long Maze
+              </Menu.Item>
+              <Menu.Item
+                key="Maze 4"
+                onClick={() => {
+                  dispatchPresetGrid("HexagonMaze");
+                  dispatchNewGridSize();
+                }}
+              >
+                Hexagon Maze
+              </Menu.Item>
+              <Menu.Item
+                key="Maze 5"
+                onClick={() => {
+                  dispatchPresetGrid("MaizeMaze");
+                  dispatchNewGridSize();
+                }}
+              >
+                Maize Maze
+              </Menu.Item>
             </SubMenu>
             <div
               style={{
@@ -237,8 +297,12 @@ const Toolbar = () => {
                   start.length === 0
                 }
                 onClick={() => {
+                  dispatchResetAnimation();
                   const gridSize = store.getState().gridSize;
                   const hexagonStates = store.getState().fullHexagonStates;
+                  console.log(
+                    JSON.stringify(store.getState().individualHexagonStates)
+                  );
                   router(
                     algorithm,
                     hexagonStates,
@@ -266,16 +330,28 @@ const Toolbar = () => {
             </div>
           </Menu>
         </Sider>
-        <Canvas
+        <HexagonGridManager
+          headerHeight={headerHeight}
+          siderWidth={siderWidth}
+          windowSize={{
+            height: props.windowSize.height,
+            width: props.windowSize.width,
+          }}
+        />
+        {/* <Canvas
           Component={HexagonGridManager}
           {...{
             siderWidth,
             headerHeight,
           }}
-        />
+        /> */}
       </Layout>
     </Layout>
   );
 };
 
-export default Toolbar;
+const Page = () => {
+  return <Canvas Component={Toolbar} />;
+};
+
+export default Page;

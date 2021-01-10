@@ -66,6 +66,8 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
       backgroundColor: "#dddddd",
     };
 
+    console.log("windowSize", this.state.windowSize);
+
     return (
       <div ref={this.state.ref} style={canvasStyle}>
         <this.props.Component
