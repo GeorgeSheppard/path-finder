@@ -7,6 +7,7 @@ import {
   NEW_GRID_SIZE,
   RESET_ANIMATIONS,
   ANIMATION_STOPPED,
+  PRESET_GRID,
 } from "./actions";
 import { Coord } from "../types/dtypes";
 import { Store, initialState } from "./store";
@@ -77,12 +78,18 @@ export const stateReducer = (
       const individualHexagonStates = { ...state.individualHexagonStates };
       let fullHexagonStates = { ...state.fullHexagonStates };
 
+      const sizeX =
+        action.payload.sizeX === -1
+          ? state.gridSize.sizeX
+          : action.payload.sizeX;
+      const sizeY =
+        action.payload.sizeY === -1
+          ? state.gridSize.sizeY
+          : action.payload.sizeY;
+
       for (const hexStringCoord in individualHexagonStates) {
         const coord = hexStringCoord.split(",").map(Number);
-        if (
-          coord[0] >= action.payload.sizeX ||
-          coord[1] >= action.payload.sizeY
-        ) {
+        if (coord[0] >= sizeX || coord[1] >= sizeY) {
           const type = individualHexagonStates[hexStringCoord];
           delete individualHexagonStates[hexStringCoord];
           fullHexagonStates[type] = fullHexagonStates[type].filter(
@@ -93,7 +100,7 @@ export const stateReducer = (
 
       return {
         ...state,
-        gridSize: { ...action.payload },
+        gridSize: { sizeX, sizeY },
         individualHexagonStates,
         fullHexagonStates,
       };
@@ -125,6 +132,33 @@ export const stateReducer = (
       return {
         ...state,
         reset: false,
+      };
+    case PRESET_GRID:
+      const mazeName = action.payload.name;
+
+      let newIndividualStates = { ...state.individualHexagonStates };
+      let newHexagonStates = { ...state.fullHexagonStates };
+      if (mazeName in state.mazes) {
+        newIndividualStates = state.mazes[mazeName];
+
+        newHexagonStates = {
+          goal: [],
+          start: [],
+          animated: [],
+          wall: [],
+          path: [],
+        };
+
+        for (const stringCoord in newIndividualStates) {
+          const coord = stringCoord.split(",").map(Number) as Coord;
+          newHexagonStates[newIndividualStates[stringCoord]].push(coord);
+        }
+      }
+
+      return {
+        ...state,
+        individualHexagonStates: newIndividualStates,
+        fullHexagonStates: newHexagonStates,
       };
     default:
       console.log("Uncaught action", action);

@@ -149,7 +149,7 @@ const Hexagon = (props: HexagonProps) => {
     }
   };
 
-  const type = useHexagonState(props.coord);
+  const type = useHexagonState(props.coord) as HexagonTypes;
   const { largeHex, smallHex, style } = props as HexagonProps;
   const backgroundColor = typeToStyling(type);
   console.log("rendering");

@@ -21,7 +21,6 @@ export const router = (algorithm, hexagonStates, sizeX, sizeY) => {
 };
 
 export const pathFinder = async (moveOrder, hexagonStates, sizeX, sizeY) => {
-  console.log(hexagonStates);
   // grid1D is a 1d array containing the type of each of the hexagon states
   const grid1D = new Array(sizeX * sizeY).fill(0);
 
@@ -30,9 +29,10 @@ export const pathFinder = async (moveOrder, hexagonStates, sizeX, sizeY) => {
   // e.g. [-1, -1, [5, 3], [0, 2], -1]
   const shortestPathGrid = new Array(sizeX * sizeY).fill(-1);
 
-  console.log(hexagonStates.wall);
-  for (const wallCoord of hexagonStates.wall) {
-    grid1D[twoDToOneDCoord(wallCoord, sizeY)] = -1;
+  if (hexagonStates.wall.length !== 0) {
+    for (const wallCoord of hexagonStates.wall) {
+      grid1D[twoDToOneDCoord(wallCoord, sizeY)] = -1;
+    }
   }
 
   const goal = hexagonStates.goal[0];
@@ -44,7 +44,8 @@ export const pathFinder = async (moveOrder, hexagonStates, sizeX, sizeY) => {
   shortestPathGrid[start1DCoord] = start;
 
   try {
-    const { path, finishedShortestPathGrid, coordsOrder } = solver(
+    // const { path, finishedShortestPathGrid, coordsOrder} = solver(
+    const { path, coordsOrder } = solver(
       grid1D,
       shortestPathGrid,
       start,

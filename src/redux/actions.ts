@@ -14,6 +14,8 @@ export const RESET_ANIMATIONS = "reset_animations";
 
 export const ANIMATION_STOPPED = "animation_stopped";
 
+export const PRESET_GRID = "preset_grid";
+
 export interface NewHexagonState {
   type: typeof NEW_HEXAGON_STATE;
   payload: {
@@ -59,6 +61,12 @@ export interface AnimationStopped {
   type: typeof ANIMATION_STOPPED;
 }
 
+export interface PresetGrid {
+  type: typeof PRESET_GRID;
+  payload: {
+    name: string;
+  };
+}
 export type Actions =
   | NewHexagonState
   | NewMouseState
@@ -66,4 +74,5 @@ export type Actions =
   | NewAlgorithm
   | NewGridSize
   | ResetAnimations
-  | AnimationStopped;
+  | AnimationStopped
+  | PresetGrid;

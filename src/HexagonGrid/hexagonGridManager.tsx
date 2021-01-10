@@ -20,6 +20,10 @@ export type CreateGridReturn = {
   offsetY: number;
   sizeX: number;
   sizeY: number;
+  horizontalSpacing: number;
+  verticalSpacing: number;
+  borderWidth: number;
+  width: number;
 };
 
 /**
@@ -37,9 +41,6 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     windowSize,
   } = props;
 
-  const horizontalSpacing = width + spacing;
-  const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
-
   /**
    * Given the size of the window to display the grid, calculates the list of possible
    * coordinates, the available border width for the grid, and the dimensions of the grid
@@ -48,18 +49,35 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
   const createGrid = (
     windowSize: WindowSize,
     siderWidth: number,
-    headerHeight: number
+    headerHeight: number,
+    width: number,
+    spacing: number,
+    borderWidth: number
   ): CreateGridReturn | undefined => {
+    const horizontalSpacing = width + spacing;
+    const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
+
     if (windowSize.height !== 0 && windowSize.width !== 0) {
-      const sizeX = Math.floor(
+      let sizeX = Math.floor(
         (windowSize.width - siderWidth - horizontalSpacing / 2) /
           horizontalSpacing
       );
 
-      const sizeY = Math.floor(
+      let sizeY = Math.floor(
         (windowSize.height - headerHeight - (Math.sqrt(3) / 3) * width) /
           verticalSpacing
       );
+
+      if (sizeX * sizeY > 400) {
+        return createGrid(
+          windowSize,
+          siderWidth,
+          headerHeight,
+          width + 10,
+          spacing + 1,
+          borderWidth + 2
+        );
+      }
 
       const offsetX =
         (windowSize.width - siderWidth - (sizeX + 0.5) * horizontalSpacing) / 2;
@@ -76,7 +94,17 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
         }
       }
 
-      return { coords, offsetX, offsetY, sizeX, sizeY };
+      return {
+        coords,
+        offsetX,
+        offsetY,
+        sizeX,
+        sizeY,
+        width,
+        horizontalSpacing,
+        verticalSpacing,
+        borderWidth,
+      };
     }
   };
 
@@ -85,7 +113,12 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
    * @param {number} x
    * @param {number} y
    */
-  const coordToPixels = (x: number, y: number): Coord => {
+  const coordToPixels = (
+    x: number,
+    y: number,
+    verticalSpacing: number,
+    horizontalSpacing: number
+  ): Coord => {
     let pixelsX = horizontalSpacing * x;
     const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
     if (y % 2 === 1) {
@@ -95,21 +128,33 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     return [pixelsX, pixelsY];
   };
 
-  const gridProps = createGrid(windowSize, siderWidth, headerHeight);
+  const gridProps = createGrid(
+    windowSize,
+    siderWidth,
+    headerHeight,
+    width,
+    spacing,
+    borderWidth
+  );
 
   if (gridProps) {
     dispatchNewGridSize(gridProps?.sizeX, gridProps?.sizeY);
 
     // Calculate the styling props once and then use it for all hexagons
     const hexagonCssProps = hexagonStylingProps({
-      width,
+      width: gridProps.width,
     });
     const reducedHexagonCssProps = hexagonStylingProps({
-      width: width - borderWidth,
+      width: gridProps.width - gridProps.borderWidth,
     });
 
     const pixelsCoords: Coords = gridProps?.coords.map((coord: Coord) =>
-      coordToPixels(...coord)
+      coordToPixels(
+        coord[0],
+        coord[1],
+        gridProps.verticalSpacing,
+        gridProps.horizontalSpacing
+      )
     );
     return (
       <HexagonGrid
