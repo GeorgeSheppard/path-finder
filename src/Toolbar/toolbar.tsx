@@ -51,7 +51,7 @@ const Toolbar = (props: any) => {
   }, []);
 
   return (
-    <Layout>
+    <Layout data-tut="reactour-main">
       <Header
         data-tut="reactour-header"
         style={{ ...headerStyle, paddingLeft: "0px", paddingRight: "0px" }}
