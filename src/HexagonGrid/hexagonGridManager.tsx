@@ -159,6 +159,7 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     return (
       <HexagonGrid
         {...{
+          windowSize: props.windowSize,
           largeHex: hexagonCssProps,
           smallHex: reducedHexagonCssProps,
           pixelsCoords,

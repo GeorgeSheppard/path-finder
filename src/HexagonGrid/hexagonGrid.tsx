@@ -2,19 +2,24 @@ import React from "react";
 import { Coords } from "../types/dtypes";
 import { CreateGridReturn } from "./hexagonGridManager";
 import Hexagon, { FixedHexagonStylingProps } from "../Hexagon/hexagon";
+import { WindowSize } from "../Canvas/canvas";
 
 type HexagonGridProps = {
   pixelsCoords: Coords;
   gridProps: CreateGridReturn;
   largeHex: FixedHexagonStylingProps;
   smallHex: FixedHexagonStylingProps;
+  windowSize: WindowSize;
 };
 
 const HexagonGrid = (props: HexagonGridProps) => {
-  const { pixelsCoords, gridProps, smallHex, largeHex } = props;
+  const { pixelsCoords, gridProps, smallHex, largeHex, windowSize } = props;
 
   return (
-    <div>
+    <div
+      data-tut="reactour-canvas"
+      style={{ width: windowSize.width, height: windowSize.height }}
+    >
       {gridProps &&
         gridProps.coords.map((coord, i) => {
           const [x, y] = coord;
