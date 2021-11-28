@@ -3,7 +3,7 @@ import { stateReducer } from "./reducer";
 import { HexagonTypes, Coords, Algorithms } from "../types/dtypes";
 import { mazes } from "./mazes";
 
-type IndividualHexagonTypes = { [index: string]: string };
+type IndividualHexagonTypes = { [index: string]: HexagonTypes };
 type Mazes = { [index: string]: IndividualHexagonTypes };
 
 export interface Store {
@@ -24,7 +24,7 @@ export interface Store {
 
 export const initialState: Store = {
   algorithm: "",
-  selected: "wall",
+  selected: HexagonTypes.wall,
   mouseState: false,
   fullHexagonStates: {
     goal: [],

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { WindowSize } from "../Canvas/canvas";
 import HexagonGrid from "./hexagonGrid";
 import { Coord, Coords } from "../types/dtypes";
@@ -41,23 +41,27 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
     windowSize,
   } = props;
 
+  const [gridProps, setGridProps] = useState<CreateGridReturn>(
+    {} as CreateGridReturn
+  );
+
   /**
    * Given the size of the window to display the grid, calculates the list of possible
    * coordinates, the available border width for the grid, and the dimensions of the grid
    * @param {number} windowSize
    */
-  const createGrid = (
-    windowSize: WindowSize,
-    siderWidth: number,
-    headerHeight: number,
-    width: number,
-    spacing: number,
-    borderWidth: number
-  ): CreateGridReturn | undefined => {
-    const horizontalSpacing = width + spacing;
-    const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
+  const createGrid = useCallback(
+    (
+      windowSize: WindowSize,
+      siderWidth: number,
+      headerHeight: number,
+      width: number,
+      spacing: number,
+      borderWidth: number
+    ): CreateGridReturn => {
+      const horizontalSpacing = width + spacing;
+      const verticalSpacing = (Math.sqrt(3) / 2) * width + spacing / 2;
 
-    if (windowSize.height !== 0 && windowSize.width !== 0) {
       let sizeX = Math.floor(
         (windowSize.width - siderWidth - horizontalSpacing / 2) /
           horizontalSpacing
@@ -105,66 +109,103 @@ const HexagonGridManager = (props: HexagonGridManagerProps) => {
         verticalSpacing,
         borderWidth,
       };
-    }
-  };
+    },
+    []
+  );
 
   /**
    * Converts a coordinate into a pixel coordinate
    * @param {number} x
    * @param {number} y
    */
-  const coordToPixels = (
-    x: number,
-    y: number,
-    verticalSpacing: number,
-    horizontalSpacing: number
-  ): Coord => {
-    let pixelsX = horizontalSpacing * x;
-    const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
-    if (y % 2 === 1) {
-      pixelsX += horizontalSpacing / 2;
+  const coordToPixels = useCallback(
+    (
+      x: number,
+      y: number,
+      verticalSpacing: number,
+      horizontalSpacing: number
+    ): Coord => {
+      let pixelsX = horizontalSpacing * x;
+      const pixelsY = verticalSpacing * y + (Math.sqrt(3) / 6) * width;
+      if (y % 2 === 1) {
+        pixelsX += horizontalSpacing / 2;
+      }
+
+      return [pixelsX, pixelsY];
+    },
+    [width]
+  );
+
+  useEffect(() => {
+    if (windowSize.height !== 0 && windowSize.width !== 0) {
+      setGridProps(
+        createGrid(
+          windowSize,
+          siderWidth,
+          headerHeight,
+          width,
+          spacing,
+          borderWidth
+        )
+      );
     }
-
-    return [pixelsX, pixelsY];
-  };
-
-  const gridProps = createGrid(
+  }, [
     windowSize,
     siderWidth,
     headerHeight,
     width,
     spacing,
-    borderWidth
-  );
+    borderWidth,
+    createGrid,
+  ]);
 
-  if (gridProps) {
-    dispatchNewGridSize(gridProps?.sizeX, gridProps?.sizeY);
+  const {
+    verticalSpacing,
+    horizontalSpacing,
+    sizeX,
+    sizeY,
+    width: gridWidth,
+    borderWidth: gridBorderWidth,
+    coords,
+  } = gridProps;
 
-    // Calculate the styling props once and then use it for all hexagons
-    const hexagonCssProps = hexagonStylingProps({
-      width: gridProps.width,
-    });
-    const reducedHexagonCssProps = hexagonStylingProps({
-      width: gridProps.width - gridProps.borderWidth,
-    });
+  useEffect(() => {
+    if (sizeX && sizeY) {
+      dispatchNewGridSize(sizeX, sizeY);
+    }
+  }, [sizeX, sizeY]);
 
-    const pixelsCoords: Coords = gridProps?.coords.map((coord: Coord) =>
-      coordToPixels(
-        coord[0],
-        coord[1],
-        gridProps.verticalSpacing,
-        gridProps.horizontalSpacing
-      )
-    );
+  // Calculate the styling props once and then use it for all hexagons
+  const hexagonCssProps = useMemo(() => {
+    if (gridWidth) {
+      return hexagonStylingProps({
+        width: gridWidth,
+      });
+    }
+  }, [gridWidth]);
+
+  const reducedHexagonCssProps = useMemo(() => {
+    if (gridWidth && gridBorderWidth) {
+      return hexagonStylingProps({ width: gridWidth - gridBorderWidth });
+    }
+  }, [gridWidth, gridBorderWidth]);
+
+  const pixelsCoords = useMemo(() => {
+    if (verticalSpacing && horizontalSpacing) {
+      return coords.map((coord: Coord) =>
+        coordToPixels(coord[0], coord[1], verticalSpacing, horizontalSpacing)
+      );
+    }
+  }, [verticalSpacing, horizontalSpacing, coordToPixels, coords]);
+
+  if (pixelsCoords && hexagonCssProps && reducedHexagonCssProps) {
     return (
       <HexagonGrid
-        {...{
-          windowSize: props.windowSize,
-          largeHex: hexagonCssProps,
-          smallHex: reducedHexagonCssProps,
-          pixelsCoords,
-          gridProps,
-        }}
+        windowSize={props.windowSize}
+        largeHex={hexagonCssProps}
+        smallHex={reducedHexagonCssProps}
+        pixelsCoords={pixelsCoords}
+        gridProps={gridProps}
       />
     );
   } else {

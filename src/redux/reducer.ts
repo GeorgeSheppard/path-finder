@@ -1,33 +1,23 @@
-import {
-  Actions,
-  NEW_HEXAGON_STATE,
-  NEW_MOUSE_STATE,
-  NEW_SELECTED,
-  NEW_ALGORITHM,
-  NEW_GRID_SIZE,
-  RESET_ANIMATIONS,
-  ANIMATION_STOPPED,
-  PRESET_GRID,
-} from "./actions";
-import { Coord } from "../types/dtypes";
+import { Coord, HexagonTypes } from "../types/dtypes";
 import { Store, initialState } from "./store";
 import { arrayEquals } from "../Utilities/utilities";
+import { ActionTypes, IAction } from "./actions";
 
-const limitedState = {
-  wall: false,
-  goal: true,
-  start: true,
-  space: false,
-  animated: false,
-  path: false,
+const limitedState: { [index in HexagonTypes]: boolean } = {
+  [HexagonTypes.wall]: false,
+  [HexagonTypes.goal]: true,
+  [HexagonTypes.start]: true,
+  [HexagonTypes.space]: false,
+  [HexagonTypes.animated]: false,
+  [HexagonTypes.path]: false,
 };
 
 export const stateReducer = (
   state: Store | undefined = initialState,
-  action: Actions
+  action: IAction
 ) => {
   switch (action.type) {
-    case NEW_HEXAGON_STATE:
+    case ActionTypes.NEW_HEXAGON_STATE:
       const newIndividualHexagonStates = { ...state.individualHexagonStates };
       let newFullHexagonStates = { ...state.fullHexagonStates };
 
@@ -35,7 +25,7 @@ export const stateReducer = (
       const stringCoord = coord.toString();
 
       // Note: Only store hexagon state when it isn't space
-      if (newState !== "space") {
+      if (newState !== HexagonTypes.space) {
         newIndividualHexagonStates[stringCoord] = newState;
       } else if (stringCoord in newIndividualHexagonStates) {
         // Note: If the new space is state then it should be removed from the redux store
@@ -50,8 +40,9 @@ export const stateReducer = (
         ].filter((listCoord: Coord) => !arrayEquals(coord, listCoord));
       }
 
-      if (newState !== "space") {
-        if (limitedState[newState]) {
+      if (newState !== HexagonTypes.space) {
+        // TODO: Improve reducer so that the switch statement can figure out the correct type as well
+        if (limitedState[newState as HexagonTypes]) {
           const oldLimitedCoord = newFullHexagonStates[newState][0];
           // Note: Remove coordinate where limited hexagon used to be
           if (oldLimitedCoord) {
@@ -68,13 +59,13 @@ export const stateReducer = (
         individualHexagonStates: newIndividualHexagonStates,
         fullHexagonStates: newFullHexagonStates,
       };
-    case NEW_MOUSE_STATE:
+    case ActionTypes.NEW_MOUSE_STATE:
       return { ...state, mouseState: action.payload.mouseState };
-    case NEW_SELECTED:
+    case ActionTypes.NEW_SELECTED:
       return { ...state, selected: action.payload.selected };
-    case NEW_ALGORITHM:
+    case ActionTypes.NEW_ALGORITHM:
       return { ...state, algorithm: action.payload.algorithm };
-    case NEW_GRID_SIZE:
+    case ActionTypes.NEW_GRID_SIZE:
       const individualHexagonStates = { ...state.individualHexagonStates };
       let fullHexagonStates = { ...state.fullHexagonStates };
 
@@ -104,7 +95,7 @@ export const stateReducer = (
         individualHexagonStates,
         fullHexagonStates,
       };
-    case RESET_ANIMATIONS:
+    case ActionTypes.RESET_ANIMATIONS:
       const animatedWipedHexagonIndividualStates = {
         ...state.individualHexagonStates,
       };
@@ -128,12 +119,12 @@ export const stateReducer = (
         individualHexagonStates: animatedWipedHexagonIndividualStates,
         reset: true,
       };
-    case ANIMATION_STOPPED:
+    case ActionTypes.ANIMATION_STOPPED:
       return {
         ...state,
         reset: false,
       };
-    case PRESET_GRID:
+    case ActionTypes.PRESET_GRID:
       const mazeName = action.payload.name;
 
       let newIndividualStates = { ...state.individualHexagonStates };

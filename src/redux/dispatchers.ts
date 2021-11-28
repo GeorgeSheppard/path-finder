@@ -1,30 +1,20 @@
 import { HexagonTypes, Coord, Algorithms } from "../types/dtypes";
-import {
-  NEW_HEXAGON_STATE,
-  NewHexagonState,
-  NEW_MOUSE_STATE,
-  NEW_SELECTED,
-  NEW_ALGORITHM,
-  NEW_GRID_SIZE,
-  RESET_ANIMATIONS,
-  ANIMATION_STOPPED,
-  PRESET_GRID,
-} from "./actions";
 import store from "./store";
+import { ActionTypes } from "./actions";
 
 export const dispatchHexagonState = (coord: Coord, newState: HexagonTypes) => {
   store.dispatch({
-    type: NEW_HEXAGON_STATE,
+    type: ActionTypes.NEW_HEXAGON_STATE,
     payload: {
       coord,
       newState,
     },
-  } as NewHexagonState);
+  });
 };
 
 export const dispatchNewMouseState = (mouseState: boolean) => {
   store.dispatch({
-    type: NEW_MOUSE_STATE,
+    type: ActionTypes.NEW_MOUSE_STATE,
     payload: {
       mouseState,
     },
@@ -33,7 +23,7 @@ export const dispatchNewMouseState = (mouseState: boolean) => {
 
 export const dispatchNewSelected = (selected: HexagonTypes) => {
   store.dispatch({
-    type: NEW_SELECTED,
+    type: ActionTypes.NEW_SELECTED,
     payload: {
       selected,
     },
@@ -42,7 +32,7 @@ export const dispatchNewSelected = (selected: HexagonTypes) => {
 
 export const dispatchNewAlgorithm = (algorithm: Algorithms) => {
   store.dispatch({
-    type: NEW_ALGORITHM,
+    type: ActionTypes.NEW_ALGORITHM,
     payload: {
       algorithm,
     },
@@ -51,7 +41,7 @@ export const dispatchNewAlgorithm = (algorithm: Algorithms) => {
 
 export const dispatchNewGridSize = (sizeX = -1, sizeY = -1) => {
   store.dispatch({
-    type: NEW_GRID_SIZE,
+    type: ActionTypes.NEW_GRID_SIZE,
     payload: {
       sizeX,
       sizeY,
@@ -61,19 +51,19 @@ export const dispatchNewGridSize = (sizeX = -1, sizeY = -1) => {
 
 export const dispatchResetAnimation = () => {
   store.dispatch({
-    type: RESET_ANIMATIONS,
+    type: ActionTypes.RESET_ANIMATIONS,
   });
 };
 
 export const dispatchAnimationStopped = () => {
   store.dispatch({
-    type: ANIMATION_STOPPED,
+    type: ActionTypes.ANIMATION_STOPPED,
   });
 };
 
 export const dispatchPresetGrid = (name: string) => {
   store.dispatch({
-    type: PRESET_GRID,
+    type: ActionTypes.PRESET_GRID,
     payload: {
       name,
     },

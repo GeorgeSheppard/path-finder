@@ -41,9 +41,7 @@ const HexagonGrid = (props: HexagonGridProps) => {
               style={style}
               largeHex={largeHex}
               smallHex={smallHex}
-              {...{
-                coord,
-              }}
+              coord={coord}
             />
           );
         })}

@@ -1,78 +1,69 @@
 import { HexagonTypes, Coord, Algorithms } from "../types/dtypes";
 
-export const NEW_HEXAGON_STATE = "new_hexagon_state";
+export enum ActionTypes {
+  NEW_HEXAGON_STATE = "new_hexagon_state",
+  NEW_MOUSE_STATE = "new_mouse_state",
+  NEW_SELECTED = "new_selected",
+  NEW_ALGORITHM = "new_algorithm",
+  NEW_GRID_SIZE = "new_grid_size",
+  RESET_ANIMATIONS = "reset_animations",
+  ANIMATION_STOPPED = "animation_stopped",
+  PRESET_GRID = "preset_grid",
+}
 
-export const NEW_MOUSE_STATE = "new_mouse_state";
+export interface IAction {
+  type: ActionTypes;
+  payload?: any;
+}
 
-export const NEW_SELECTED = "new_selected";
-
-export const NEW_ALGORITHM = "new_algorithm";
-
-export const NEW_GRID_SIZE = "new_grid_size";
-
-export const RESET_ANIMATIONS = "reset_animations";
-
-export const ANIMATION_STOPPED = "animation_stopped";
-
-export const PRESET_GRID = "preset_grid";
-
-export interface NewHexagonState {
-  type: typeof NEW_HEXAGON_STATE;
+export interface INewHexagonState extends IAction {
+  type: ActionTypes.NEW_HEXAGON_STATE;
   payload: {
     coord: Coord;
     newState: HexagonTypes;
   };
 }
 
-export interface NewMouseState {
-  type: typeof NEW_MOUSE_STATE;
+export interface INewMouseState extends IAction {
+  type: ActionTypes.NEW_MOUSE_STATE;
   payload: {
     mouseState: boolean;
   };
 }
 
-export interface NewSelected {
-  type: typeof NEW_SELECTED;
+export interface INewSelected extends IAction {
+  type: ActionTypes.NEW_SELECTED;
   payload: {
     selected: HexagonTypes;
   };
 }
 
-export interface NewAlgorithm {
-  type: typeof NEW_ALGORITHM;
+export interface INewAlgorithm extends IAction {
+  type: ActionTypes.NEW_ALGORITHM;
   payload: {
     algorithm: Algorithms;
   };
 }
 
-export interface NewGridSize {
-  type: typeof NEW_GRID_SIZE;
+export interface INewGridSize extends IAction {
+  type: ActionTypes.NEW_GRID_SIZE;
   payload: {
     sizeX: number;
     sizeY: number;
   };
 }
 
-export interface ResetAnimations {
-  type: typeof RESET_ANIMATIONS;
+export interface IResetAnimations extends IAction {
+  type: ActionTypes.RESET_ANIMATIONS;
 }
 
-export interface AnimationStopped {
-  type: typeof ANIMATION_STOPPED;
+export interface IAnimationStopped extends IAction {
+  type: ActionTypes.ANIMATION_STOPPED;
 }
 
-export interface PresetGrid {
-  type: typeof PRESET_GRID;
+export interface IPresetGrid extends IAction {
+  type: ActionTypes.PRESET_GRID;
   payload: {
     name: string;
   };
 }
-export type Actions =
-  | NewHexagonState
-  | NewMouseState
-  | NewSelected
-  | NewAlgorithm
-  | NewGridSize
-  | ResetAnimations
-  | AnimationStopped
-  | PresetGrid;

@@ -25,12 +25,12 @@ import {
 } from "../redux/dispatchers";
 import maze from "../assets/maze.svg";
 import Paragraph from "antd/lib/typography/Paragraph";
+import { HexagonTypes } from "../types/dtypes";
 
 const { SubMenu } = Menu;
 const { Sider, Header } = Layout;
 
 const Toolbar = (props: any) => {
-  console.log("props", props);
   const siderWidth: number = 200;
   const headerHeight: number = 70;
   const headerStyle = {
@@ -43,8 +43,6 @@ const Toolbar = (props: any) => {
     (state: Store) => state.fullHexagonStates.animated.length !== 0
   );
   const algorithm = useSelector((state: Store) => state.algorithm);
-
-  // const [displayPlayback, setDisplayPlayback] = useState(false);
 
   useEffect(() => {
     dispatchPresetGrid("Default");
@@ -87,24 +85,27 @@ const Toolbar = (props: any) => {
           >
             Tutorial
           </Menu.Item>
-          {/* <Menu.Item
-            key="playback"
-            style={{ ...headerStyle, position: "relative", float: "left" }}
-          >
-            Playback Controls
-          </Menu.Item> */}
-          <Paragraph
+          <Menu.Item
+            key="phone"
             style={{
-              ...headerStyle,
-              color: "#a6adac",
+              display: "flex",
+              alignItems: "center",
+              float: "right",
               position: "absolute",
               top: 0,
-              right: 180,
+              right: 140,
             }}
-            copyable
           >
-            +44 (0)7956-731633
-          </Paragraph>
+            <Paragraph
+              style={{
+                ...headerStyle,
+                color: "#a6adac",
+              }}
+              copyable
+            >
+              +44 (0)7956-731633
+            </Paragraph>
+          </Menu.Item>
           {/* </Menu.Item> */}
           <Menu.Item
             key="github"
@@ -188,7 +189,7 @@ const Toolbar = (props: any) => {
             >
               <Menu.Item
                 key="1"
-                onClick={() => dispatchNewSelected("start")}
+                onClick={() => dispatchNewSelected(HexagonTypes.start)}
                 style={{
                   color: start.length === 0 ? "red" : undefined,
                 }}
@@ -197,17 +198,23 @@ const Toolbar = (props: any) => {
               </Menu.Item>
               <Menu.Item
                 key="2"
-                onClick={() => dispatchNewSelected("goal")}
+                onClick={() => dispatchNewSelected(HexagonTypes.goal)}
                 style={{
                   color: goal.length === 0 ? "red" : undefined,
                 }}
               >
                 {goal.length === 0 ? "Goal (required)" : "Goal"}
               </Menu.Item>
-              <Menu.Item key="3" onClick={() => dispatchNewSelected("wall")}>
+              <Menu.Item
+                key="3"
+                onClick={() => dispatchNewSelected(HexagonTypes.wall)}
+              >
                 Wall
               </Menu.Item>
-              <Menu.Item key="4" onClick={() => dispatchNewSelected("space")}>
+              <Menu.Item
+                key="4"
+                onClick={() => dispatchNewSelected(HexagonTypes.space)}
+              >
                 Space
               </Menu.Item>
             </SubMenu>
@@ -287,7 +294,6 @@ const Toolbar = (props: any) => {
             </SubMenu>
             <div
               style={{
-                // display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 marginTop: "20px",
@@ -309,9 +315,6 @@ const Toolbar = (props: any) => {
                   dispatchResetAnimation();
                   const gridSize = store.getState().gridSize;
                   const hexagonStates = store.getState().fullHexagonStates;
-                  console.log(
-                    JSON.stringify(store.getState().individualHexagonStates)
-                  );
                   router(
                     algorithm,
                     hexagonStates,

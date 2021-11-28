@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Coord, HexagonTypes } from "../types/dtypes";
 import { dispatchHexagonState } from "../redux/dispatchers";
@@ -93,7 +93,7 @@ export const hexagonStylingProps = ({
  * Converts the type of a hexagon into the colour it's background should be
  * @param type: the state of the hexagon, currently 'space', 'wall', 'goal', or 'start'
  */
-const typeToStyling = (type: string) => {
+const typeToHexagonBackgroundColor = (type: string) => {
   switch (type) {
     case "space":
       break;
@@ -122,56 +122,68 @@ export interface HexagonProps {
 }
 
 const Hexagon = (props: HexagonProps) => {
-  const handleChange = (
-    event: React.MouseEvent<HTMLElement>,
-    oldType: HexagonTypes
-  ) => {
-    if (event.button === 0) {
-      const newType = store.getState().selected;
-      if (newType !== oldType) {
-        dispatchHexagonState(props.coord, newType);
+  const handleChange = useCallback(
+    (event: React.MouseEvent<HTMLElement>, oldType: HexagonTypes) => {
+      // Left button
+      if (event.button === 0) {
+        const newType = store.getState().selected;
+        if (newType !== oldType) {
+          dispatchHexagonState(props.coord, newType);
+        }
+        // Right button
+      } else if (event.button === 2) {
+        if (HexagonTypes.space !== oldType) {
+          dispatchHexagonState(props.coord, HexagonTypes.space);
+        }
       }
-    } else if (event.button === 2) {
-      if ("space" !== oldType) {
-        dispatchHexagonState(props.coord, "space");
+    },
+    [props.coord]
+  );
+
+  const handleHover = useCallback(
+    (event: React.MouseEvent<HTMLElement>, oldType: HexagonTypes) => {
+      const mouseDown = store.getState().mouseState;
+
+      if (mouseDown) {
+        handleChange(event, oldType);
       }
-    }
-  };
+    },
+    [handleChange]
+  );
 
-  const handleHover = (
-    event: React.MouseEvent<HTMLElement>,
-    oldType: HexagonTypes
-  ) => {
-    const mouseDown = store.getState().mouseState;
+  const type = useHexagonState(props.coord);
+  const { largeHex, smallHex, style } = props;
+  const backgroundColor = React.useMemo(
+    () => typeToHexagonBackgroundColor(type),
+    [type]
+  );
 
-    if (mouseDown) {
-      handleChange(event, oldType);
-    }
-  };
+  const mouseHandleChange = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => handleChange(event, type),
+    [type, handleChange]
+  );
 
-  const type = useHexagonState(props.coord) as HexagonTypes;
-  const { largeHex, smallHex, style } = props as HexagonProps;
-  const backgroundColor = typeToStyling(type);
-  console.log("rendering");
+  const mouseHandleHover = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => handleHover(event, type),
+    [type, handleHover]
+  );
+
+  const preventDefault = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => event.preventDefault(),
+    []
+  );
+
   return (
     <StyledHexagonWithBorder
-      {...{ largeHex, smallHex, backgroundColor }}
+      largeHex={largeHex}
+      smallHex={smallHex}
+      backgroundColor={backgroundColor}
       style={style}
-      onClick={(event: React.MouseEvent<HTMLElement>) =>
-        handleChange(event, type)
-      }
-      onMouseOver={(event: React.MouseEvent<HTMLElement>) =>
-        handleHover(event, type)
-      }
-      onMouseDown={(event: React.MouseEvent<HTMLElement>) =>
-        handleChange(event, type)
-      }
-      onDragStart={(event: React.MouseEvent<HTMLElement>) =>
-        event.preventDefault()
-      }
-      onContextMenu={(event: React.MouseEvent<HTMLElement>) =>
-        event.preventDefault()
-      }
+      onClick={mouseHandleChange}
+      onMouseOver={mouseHandleHover}
+      onMouseDown={mouseHandleChange}
+      onDragStart={preventDefault}
+      onContextMenu={preventDefault}
     />
   );
 };

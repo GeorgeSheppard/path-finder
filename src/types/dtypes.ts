@@ -1,8 +1,14 @@
-export type StoredHexagonTypes = "wall" | "start" | "goal" | "animated" | "path";
-export type HexagonTypes = StoredHexagonTypes | "space";
-
 export type Coord = [number, number];
 export type Coords = Array<Coord>;
+
+export enum HexagonTypes {
+  wall = "wall",
+  start = "start",
+  goal = "goal",
+  animated = "animated",
+  path = "path",
+  space = "space",
+}
 
 export type HexagonStates = {
   goal: Coords;
