@@ -28,11 +28,12 @@
   },
   "scripts": {
     "predeploy": "pnpm build",
-    "deploy": "gh-pages -d build",
+    "deploy": "pnpm run build && wrangler deploy",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "preview": "pnpm run build && wrangler dev"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@types/react-redux": "^7.1.15",
     "eslint": "^8.57.1",
-    "svgo": "^4.0.1"
+    "svgo": "^4.0.1",
+    "wrangler": "^4.105.0"
   }
 }
